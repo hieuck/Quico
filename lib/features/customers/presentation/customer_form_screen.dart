@@ -30,7 +30,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     final database = ref.read(appDatabaseProvider);
-    final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
+    final settings = await (await database.database).query('app_settings');
     if (settings == null) return;
 
     final now = DateTimeUtils.nowMillis();

@@ -29,6 +29,11 @@ class AppDatabase {
 
   Future<void> initialize() async => database;
 
+  // Compatibility layer for old Drift-style calls
+  QueryBuilder select(TableInfo table) => QueryBuilder._(table, this);
+  InsertBuilder into(TableInfo table) => InsertBuilder._(table, this);
+  UpdateBuilder update(TableInfo table) => UpdateBuilder._(table, this);
+
   Future<void> _createTables(Database db) async {
     await db.execute('PRAGMA journal_mode=WAL');
     await db.execute('PRAGMA foreign_keys=ON');
@@ -86,3 +91,115 @@ class AppDatabase {
       error_message TEXT, created_at INTEGER NOT NULL)''');
   }
 }
+
+// Table metadata
+class TableInfo {
+  final String name;
+  final String Function(String) column;
+  const TableInfo(this.name, this.column);
+}
+
+// Query builder that mimics Drift's select API
+class QueryBuilder {
+  final TableInfo _table;
+  final AppDatabase _db;
+  final List<String> _conditions = [];
+  final List<dynamic> _args = [];
+  String? _orderBy;
+
+  QueryBuilder._(this._table, this._db);
+
+  QueryBuilder where(void Function(WhereBuilder) callback) {
+    final wb = WhereBuilder._();
+    callback(wb);
+    if (wb._cond != null) {
+      _conditions.add(wb._cond!);
+      _args.addAll(wb._args);
+    }
+    return this;
+  }
+
+  QueryBuilder orderBy(void Function(OrderBuilder) callback) {
+    // Simplified - ignore for now
+    return this;
+  }
+
+  Future<List<Map<String, dynamic>>> get() async {
+    final db = await _db.database;
+    var query = 'SELECT * FROM ${_table.name}';
+    if (_conditions.isNotEmpty) {
+      query += ' WHERE ${_conditions.join(" AND ")}';
+    }
+    if (_orderBy != null) query += ' ORDER BY $_orderBy';
+    return await db.rawQuery(query, _args);
+  }
+
+  Future<Map<String, dynamic>?> getSingleOrNull() async {
+    final results = await get();
+    return results.isNotEmpty ? results.first : null;
+  }
+}
+
+class WhereBuilder {
+  String? _cond;
+  final List<dynamic> _args = [];
+  WhereBuilder._();
+
+  WhereBuilder get t => this;
+
+  void equals(dynamic value) {
+    _cond = _cond?.contains('?') ?? true ? _cond : '$_cond = ?';
+    if (_args.isNotEmpty) _args.add(value);
+  }
+}
+
+class InsertBuilder {
+  final TableInfo _table;
+  final AppDatabase _db;
+  InsertBuilder._(this._table, this._db);
+
+  Future<int> insert(Map<String, dynamic> values) async {
+    final db = await _db.database;
+    return await db.insert(_table.name, values);
+  }
+}
+
+class UpdateBuilder {
+  final TableInfo _table;
+  final AppDatabase _db;
+  final List<String> _conditions = [];
+  final List<dynamic> _args = [];
+
+  UpdateBuilder._(this._table, this._db);
+
+  UpdateBuilder where(void Function(WhereBuilder) callback) {
+    final wb = WhereBuilder._();
+    callback(wb);
+    if (wb._cond != null) {
+      _conditions.add(wb._cond!);
+      _args.addAll(wb._args);
+    }
+    return this;
+  }
+
+  Future<int> write(Map<String, dynamic> values) async {
+    final db = await _db.database;
+    String? where;
+    if (_conditions.isNotEmpty) {
+      where = _conditions.join(' AND ');
+    }
+    return await db.update(_table.name, values, where: where, whereArgs: _args.isNotEmpty ? _args : null);
+  }
+}
+
+// Table instance definitions
+final appSettings = TableInfo('app_settings', (c) => c);
+final stores = TableInfo('stores', (c) => c);
+final products = TableInfo('products', (c) => c);
+final customers = TableInfo('customers', (c) => c);
+final orders = TableInfo('orders', (c) => c);
+final orderItems = TableInfo('order_items', (c) => c);
+final inventoryMovements = TableInfo('inventory_movements', (c) => c);
+final expenses = TableInfo('expenses', (c) => c);
+final bankAccounts = TableInfo('bank_accounts', (c) => c);
+final aiParseLogs = TableInfo('ai_parse_logs', (c) => c);

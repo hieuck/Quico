@@ -11,8 +11,8 @@ final _receiptDataProvider = FutureProvider.autoDispose.family<ReceiptData?, Str
   final database = ref.read(appDatabaseProvider);
   final order = await (await database.database).query('orders', where: 'id = ?', whereArgs: [orderId]);
   if (order == null) return null;
-  final items = await ((await database.database).query('order_items'));
-  final store = await ((await database.database).query('stores')..where((t) => t.id.equals(order.storeId)));
+  final items = await (await database.database).query('order_items'));
+  final store = await (await database.database).query('stores');
   return ReceiptData(
     storeName: store?.name ?? context.l10n.appName,
     orderCode: order.orderCode,

@@ -34,7 +34,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     if (amount == null || amount <= 0) return;
 
     final database = ref.read(appDatabaseProvider);
-    final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
+    final settings = await (await database.database).query('app_settings');
     if (settings == null) return;
 
     final now = DateTimeUtils.nowMillis();

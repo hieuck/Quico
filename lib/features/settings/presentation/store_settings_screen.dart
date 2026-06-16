@@ -22,9 +22,9 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
 
   Future<void> _load() async {
     final database = ref.read(appDatabaseProvider);
-    final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
+    final settings = await (await database.database).query('app_settings');
     if (settings != null) {
-      final store = await ((await database.database).query('stores')..where((t) => t.id.equals(settings.value)));
+      final store = await (await database.database).query('stores');
       if (store != null) _nameCtrl.text = store.name;
     }
     setState(() => _loading = false);
@@ -50,11 +50,9 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                 SizedBox(width: double.infinity, child: ElevatedButton(
                   onPressed: () async {
                     final database = ref.read(appDatabaseProvider);
-                    final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
+                    final settings = await (await database.database).query('app_settings');
                     if (settings != null) {
-                      await (database.update(database.stores)..where((t) => t.id.equals(settings.value))).write(
-                        StoresCompanion(
-                          name: Value(_nameCtrl.text.trim()),
+                      await (database.update(database.stores),
                           updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
                         ),
                       );

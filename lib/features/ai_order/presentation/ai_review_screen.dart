@@ -161,7 +161,7 @@ class AiReviewScreen extends ConsumerWidget {
     try {
       final database = ref.read(appDatabaseProvider);
       final repo = OrderRepository(db);
-      final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
+      final settings = await (await database.database).query('app_settings');
       if (settings == null) return;
 
       final items = draft.items.map((item) => CartItem(

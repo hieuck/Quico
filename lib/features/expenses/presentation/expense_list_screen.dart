@@ -8,10 +8,10 @@ import '../../../l10n/l10n_extension.dart';
 
 final _expenseListProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
   final database = ref.read(appDatabaseProvider);
-  final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
+  final settings = await (await database.database).query('app_settings');
   if (settings == null) return [];
-  return await ((await database.database).query('expenses')
-    ..where((t) => t.storeId.equals(settings.value))
+  return await (await database.database).query('expenses')
+    
     
     
   );
