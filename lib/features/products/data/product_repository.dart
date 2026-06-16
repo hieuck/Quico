@@ -1,17 +1,17 @@
 import 'package:drift/drift.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_db.dart' as db;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/text_normalizer.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../domain/product.dart';
 
 class ProductRepository {
-  final AppDatabase _db;
+  final db.AppDatabase _db;
 
   ProductRepository(this._db);
 
   Future<List<Product>> listProducts(String storeId) async {
-    final rows = await (_database.select(_database.products)
+    final rows = await (_db.select(_db.products)
       ..where((t) => t.storeId.equals(storeId))
       ..where((t) => t.deletedAt.isNull())
       ..orderBy([(t) => db.OrderingTerm(expression: t.name, mode: db.OrderingMode.asc)])
@@ -20,7 +20,7 @@ class ProductRepository {
   }
 
   Future<List<Product>> listActiveProducts(String storeId) async {
-    final rows = await (_database.select(_database.products)
+    final rows = await (_db.select(_db.products)
       ..where((t) => t.storeId.equals(storeId))
       ..where((t) => t.isActive.equals(true))
       ..where((t) => t.deletedAt.isNull())
@@ -30,7 +30,7 @@ class ProductRepository {
 
   Future<List<Product>> searchProducts(String storeId, String query) async {
     final normalized = TextNormalizer.normalize(query);
-    final rows = await (_database.select(_database.products)
+    final rows = await (_db.select(_db.products)
       ..where((t) => t.storeId.equals(storeId))
       ..where((t) => t.deletedAt.isNull())
     ).get();
@@ -44,7 +44,7 @@ class ProductRepository {
   }
 
   Future<List<Product>> listLowStockProducts(String storeId) async {
-    final rows = await (_database.select(_database.products)
+    final rows = await (_db.select(_db.products)
       ..where((t) => t.storeId.equals(storeId))
       ..where((t) => t.deletedAt.isNull())
       ..where((t) => t.isActive.equals(true))
@@ -53,7 +53,7 @@ class ProductRepository {
   }
 
   Future<Product?> getProductById(String id) async {
-    final row = await (_database.select(_database.products)..where((t) => t.id.equals(id))).getSingleOrNull();
+    final row = await (_db.select(_db.products)..where((t) => t.id.equals(id))).getSingleOrNull();
     return row != null ? _toDomain(row) : null;
   }
 
@@ -63,7 +63,7 @@ class ProductRepository {
     final normalizedName = TextNormalizer.normalize(input.name);
     final normalizedFull = TextNormalizer.expandAbbreviations(input.name);
 
-    _database.into(_database.products).insert(ProductsCompanion.insert(
+    _db.into(_db.products).insert(ProductsCompanion.insert(
       id: id,
       storeId: input.storeId,
       name: input.name,
@@ -80,7 +80,7 @@ class ProductRepository {
     ));
 
     if (input.stockQuantity > 0) {
-      _database.into(_database.inventoryMovements).insert(InventoryMovementsCompanion.insert(
+      _db.into(_db.inventoryMovements).insert(InventoryMovementsCompanion.insert(
         id: IdGenerator.newId(),
         storeId: input.storeId,
         productId: id,
@@ -113,7 +113,7 @@ class ProductRepository {
     if (input.isActive != null) updates['is_active'] = input.isActive;
     updates['updated_at'] = now;
 
-    await (_database.update(_database.products)..where((t) => t.id.equals(input.id))).write(
+    await (_db.update(_db.products)..where((t) => t.id.equals(input.id))).write(
       ProductsCompanion.custom(updates),
     );
 
@@ -127,7 +127,7 @@ class ProductRepository {
 
   Future<void> softDeleteProduct(String id) async {
     final now = DateTimeUtils.nowMillis();
-    await (_database.update(_database.products)..where((t) => t.id.equals(id))).write(
+    await (_db.update(_db.products)..where((t) => t.id.equals(id))).write(
       ProductsCompanion.custom({'deleted_at': now, 'updated_at': now}),
     );
   }

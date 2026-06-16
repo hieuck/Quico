@@ -3,7 +3,7 @@ import '../../../core/database/app_db.dart' as db;
 import '../../../core/utils/date_time_utils.dart';
 
 class ReportRepository {
-  final AppDatabase _db;
+  final db.AppDatabase _db;
 
   ReportRepository(this._db);
 

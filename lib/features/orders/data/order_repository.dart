@@ -1,16 +1,16 @@
 import 'package:drift/drift.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_db.dart' as db;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../domain/order.dart';
 
 class OrderRepository {
-  final AppDatabase _db;
+  final db.AppDatabase _db;
 
   OrderRepository(this._db);
 
   Future<String> generateNextOrderCode(String storeId) async {
-    final settings = _database.select(_database.appSettings);
+    final settings = _db.select(_db.appSettings);
     final key = 'order_sequence:$storeId';
     final row = await (settings..where((t) => t.key.equals(key))).getSingleOrNull();
     int nextSeq = 1;
@@ -37,7 +37,7 @@ class OrderRepository {
       final costAmount = items.fold(0, (s, i) => s + (i.quantity * i.costPrice));
       final grossProfit = totalAmount - costAmount;
 
-      _database.into(_database.orders).insert(OrdersCompanion.insert(
+      _db.into(_db.orders).insert(OrdersCompanion.insert(
         id: orderId,
         storeId: input.storeId,
         customerId: input.customerId != null ? db.Value(input.customerId!) : Value.absent(),
@@ -62,7 +62,7 @@ class OrderRepository {
       for (final item in items) {
         final lineTotal = (item.quantity * item.unitPrice) - item.discountAmount;
         final lineProfit = lineTotal - (item.quantity * item.costPrice);
-        _database.into(_database.orderItems).insert(OrderItemsCompanion.insert(
+        _db.into(_db.orderItems).insert(OrderItemsCompanion.insert(
           id: IdGenerator.newId(),
           orderId: orderId,
           productId: item.productId != null ? db.Value(item.productId!) : Value.absent(),
@@ -79,7 +79,7 @@ class OrderRepository {
         ));
 
         if (item.productId != null) {
-          _database.into(_database.inventoryMovements).insert(InventoryMovementsCompanion.insert(
+          _db.into(_db.inventoryMovements).insert(InventoryMovementsCompanion.insert(
             id: IdGenerator.newId(),
             storeId: input.storeId,
             productId: item.productId!,
@@ -91,10 +91,10 @@ class OrderRepository {
             createdAt: now,
           ));
 
-          final product = await (_database.select(_database.products)..where((t) => t.id.equals(item.productId!))).getSingleOrNull();
+          final product = await (_db.select(_db.products)..where((t) => t.id.equals(item.productId!))).getSingleOrNull();
           if (product != null) {
             final newStock = product.stockQuantity - item.quantity;
-            await (_database.update(_database.products)..where((t) => t.id.equals(item.productId!))).write(
+            await (_db.update(_db.products)..where((t) => t.id.equals(item.productId!))).write(
               ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
             );
           }
@@ -102,12 +102,12 @@ class OrderRepository {
       }
 
       if (input.customerId != null) {
-        final customerOrders = await (_database.select(_database.orders)
+        final customerOrders = await (_db.select(_db.orders)
           ..where((t) => t.customerId.equals(input.customerId!))
           ..where((t) => t.status.equals('paid'))
         ).get();
         final totalSpent = customerOrders.fold(0, (s, o) => s + o.totalAmount);
-        await (_database.update(_database.customers)..where((t) => t.id.equals(input.customerId!))).write(
+        await (_db.update(_db.customers)..where((t) => t.id.equals(input.customerId!))).write(
           CustomersCompanion.custom({
             'total_orders': customerOrders.length,
             'total_spent': totalSpent,
@@ -142,7 +142,7 @@ class OrderRepository {
   }
 
   Future<Order?> getOrderById(String id) async {
-    final row = await (_database.select(_database.orders)..where((t) => t.id.equals(id))).getSingleOrNull();
+    final row = await (_db.select(_db.orders)..where((t) => t.id.equals(id))).getSingleOrNull();
     if (row == null) return null;
     return Order(
       id: row.id,
@@ -169,7 +169,7 @@ class OrderRepository {
   }
 
   Future<List<Order>> listOrders(OrderFilter filter) async {
-    var query = _database.select(_database.orders)..orderBy([(t) => db.OrderingTerm(expression: t.createdAt, mode: db.OrderingMode.desc)]);
+    var query = _db.select(_db.orders)..orderBy([(t) => db.OrderingTerm(expression: t.createdAt, mode: db.OrderingMode.desc)]);
     if (filter.status != null) {
       query.where((t) => t.status.equals(filter.status!));
     }
@@ -213,7 +213,7 @@ class OrderRepository {
       final order = await getOrderById(orderId);
       if (order == null) return;
 
-      await (_database.update(_database.orders)..where((t) => t.id.equals(orderId))).write(
+      await (_db.update(_db.orders)..where((t) => t.id.equals(orderId))).write(
         OrdersCompanion.custom({
           'status': 'cancelled',
           'cancelled_at': now,
@@ -221,13 +221,13 @@ class OrderRepository {
         }),
       );
 
-      final items = await (_database.select(_database.orderItems)..where((t) => t.orderId.equals(orderId))).get();
+      final items = await (_db.select(_db.orderItems)..where((t) => t.orderId.equals(orderId))).get();
       for (final item in items) {
         if (item.productId != null) {
-          final product = await (_database.select(_database.products)..where((t) => t.id.equals(item.productId!))).getSingleOrNull();
+          final product = await (_db.select(_db.products)..where((t) => t.id.equals(item.productId!))).getSingleOrNull();
           if (product != null) {
             final newStock = product.stockQuantity + item.quantity;
-            await (_database.update(_database.products)..where((t) => t.id.equals(item.productId!))).write(
+            await (_db.update(_db.products)..where((t) => t.id.equals(item.productId!))).write(
               ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
             );
           }

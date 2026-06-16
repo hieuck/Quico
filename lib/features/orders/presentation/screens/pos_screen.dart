@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/database/app_database.dart' as db;
+import '../../../../core/database/app_db.dart' as db;
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/widgets/product_image.dart';
 import '../../../../shared/widgets/confirm_dialog.dart';
