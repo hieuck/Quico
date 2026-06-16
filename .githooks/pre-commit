@@ -1,0 +1,32 @@
+#!/bin/sh
+# Pre-commit hook: i18n gate + code quality checks
+# Install: git config core.hooksPath .githooks
+
+echo "=== Pre-commit Checks ==="
+
+# i18n gate
+echo "[1/3] Running i18n gate..."
+python3 scripts/i18n_gate.py
+if [ $? -ne 0 ]; then
+    echo "COMMIT REJECTED: i18n issues found."
+    echo "Fix them before committing."
+    exit 1
+fi
+
+# Dart format check
+echo "[2/3] Checking Dart format..."
+dart format --set-exit-if-changed .
+if [ $? -ne 0 ]; then
+    echo "COMMIT REJECTED: Dart format issues."
+    exit 1
+fi
+
+# Flutter analyze
+echo "[3/3] Running flutter analyze..."
+flutter analyze
+if [ $? -ne 0 ]; then
+    echo "COMMIT REJECTED: Analysis issues."
+    exit 1
+fi
+
+echo "All checks passed!"
