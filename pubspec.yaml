@@ -11,8 +11,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_riverpod: any
-  riverpod_annotation: any
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
   go_router: any
   drift: any
   sqlite3_flutter_libs: any
@@ -34,7 +34,7 @@ dev_dependencies:
     sdk: flutter
   build_runner: any
   drift_dev: any
-  riverpod_generator: any
+  riverpod_generator: ^2.4.0
   riverpod_lint: any
   custom_lint: any
   flutter_lints: any
