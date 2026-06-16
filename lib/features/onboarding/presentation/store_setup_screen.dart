@@ -10,7 +10,7 @@ class StoreSetupScreen extends ConsumerStatefulWidget {
   const StoreSetupScreen({super.key});
 
   @override
-  ConsumerConsumerState<StoreSetupScreen> createState() => _StoreSetupScreenState();
+  ConsumerState<StoreSetupScreen> createState() => _StoreSetupScreenState();
 }
 
 class _StoreSetupScreenState extends ConsumerState<StoreSetupScreen> {
