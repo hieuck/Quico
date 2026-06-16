@@ -146,7 +146,7 @@ class QueryBuilder {
     return await db.rawQuery(query, _args);
   }
 
-  Future<Row?> getSingleOrNull() async {
+  Future<dynamic> getSingleOrNull() async {
     final results = await get();
     return results.isNotEmpty ? Row(results.first) : null;
   }
