@@ -73,20 +73,21 @@ class _StoreSetupScreenState extends State<StoreSetupScreen> {
     final now = DateTimeUtils.nowMillis();
     final storeId = IdGenerator.newId();
 
-    (await database.database).insert('stores', {
-      id: storeId,
-      name: name,
-      businessType: _businessType.isNotEmpty ? _businessType : null,
-      currency: 'VND',
-      createdAt: now,
-      updatedAt: now,
-    ));
+    final db = await database.database;
+    await db.insert('stores', {
+      'id': storeId,
+      'name': name,
+      'business_type': _businessType.isNotEmpty ? _businessType : null,
+      'currency': 'VND',
+      'created_at': now,
+      'updated_at': now,
+    });
 
-    (await database.database).insert('app_settings', {
-      key: 'active_store_id',
-      value: storeId,
-      updatedAt: now,
-    ));
+    await db.insert('app_settings', {
+      'key': 'active_store_id',
+      'value': storeId,
+      'updated_at': now,
+    });
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Cua hang da san sang!')),

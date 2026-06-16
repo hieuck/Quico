@@ -14,7 +14,7 @@ final _receiptDataProvider = FutureProvider.autoDispose.family<ReceiptData?, Str
   final items = await (database.select(database.orderItems)..where((t) => t.orderId.equals(orderId))).get();
   final store = await (database.select(database.stores)..where((t) => t.id.equals(order.storeId))).getSingleOrNull();
   return ReceiptData(
-    storeName: store?.name ?? context.l10n.appName,
+    storeName: store?.name ?? 'Quico',
     orderCode: order.orderCode,
     createdAt: order.createdAt,
     items: items.map((i) => ReceiptItem(
