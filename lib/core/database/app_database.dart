@@ -165,7 +165,6 @@ class Row {
   static String _toSnake(String camel) => camel.replaceAllMapped(
     RegExp(r'[A-Z]'), (m) => '_${m.group(0)!.toLowerCase()}');
 }
-}
 
 class WhereBuilder {
   final List<MapEntry<String, dynamic>> _clauses = [];

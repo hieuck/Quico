@@ -43,7 +43,7 @@ class _AiOrderScreenState extends ConsumerState<AiOrderScreen> with SingleTicker
       final database = ref.read(appDatabaseProvider);
       final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
       if (settings != null) {
-        final repo = ProductRepository(db);
+        final repo = ProductRepository(database);
         final products = await repo.listActiveProducts(settings.value);
         final catalog = products.map((p) => {
           'id': p.id,
