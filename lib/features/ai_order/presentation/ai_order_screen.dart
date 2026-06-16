@@ -64,7 +64,7 @@ class _AiOrderScreenState extends ConsumerState<AiOrderScreen> with SingleTicker
           matchedItems.add(ParsedOrderItem(
             rawName: item.rawName,
             quantity: item.quantity,
-            unitPrice: item.unitPrice ?? result.match?.score != null ? null : null,
+            unitPrice: item.unitPrice,
             note: item.note,
             productMatch: result.match,
           ));
