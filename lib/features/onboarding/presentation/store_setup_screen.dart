@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/database/app_database.dart' as db;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 
-final _storeNameProvider = StateProvider<String>((ref) => '');
-
-class StoreSetupScreen extends ConsumerStatefulWidget {
+class StoreSetupScreen extends StatefulWidget {
   const StoreSetupScreen({super.key});
 
   @override
-  ConsumerState<StoreSetupScreen> createState() => _StoreSetupScreenState();
+  State<StoreSetupScreen> createState() => _StoreSetupScreenState();
 }
 
-class _StoreSetupScreenState extends ConsumerState<StoreSetupScreen> {
+class _StoreSetupScreenState extends State<StoreSetupScreen> {
   final _formKey = GlobalKey<FormState>();
+  String _storeName = '';
   String _businessType = '';
 
   @override
@@ -35,7 +33,7 @@ class _StoreSetupScreenState extends ConsumerState<StoreSetupScreen> {
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Ten cua hang', hintText: 'VD: Quan cafe ABC'),
                 validator: Validators.storeName,
-                onChanged: (v) => ref.read(_storeNameProvider.notifier).state = v,
+                onChanged: (v) => setState(() => _storeName = v),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
@@ -68,23 +66,23 @@ class _StoreSetupScreenState extends ConsumerState<StoreSetupScreen> {
 
   void _createStore() {
     if (!_formKey.currentState!.validate()) return;
-    final name = ref.read(_storeNameProvider).trim();
+    final name = _storeName.trim();
     if (name.isEmpty) return;
 
     final database = ref.read(db.appDatabaseProvider);
     final now = DateTimeUtils.nowMillis();
     final storeId = IdGenerator.newId();
 
-    db.into(db.stores).insert(StoresCompanion.insert(
+    database.into(database.stores).insert(db.StoresCompanion.insert(
       id: storeId,
       name: name,
-      businessType: _businessType.isNotEmpty ? db.Value(_businessType) : Value.absent(),
+      businessType: _businessType.isNotEmpty ? db.Value(_businessType) : db.Value.absent(),
       currency: 'VND',
       createdAt: now,
       updatedAt: now,
     ));
 
-    db.into(db.appSettings).insert(AppSettingsCompanion.insert(
+    database.into(database.appSettings).insert(db.AppSettingsCompanion.insert(
       key: 'active_store_id',
       value: storeId,
       updatedAt: now,

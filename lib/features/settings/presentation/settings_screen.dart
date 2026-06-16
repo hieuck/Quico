@@ -49,10 +49,10 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => context.push('/settings/store'),
           ),
           const Divider(),
-          const ListTile(
-            leading: Icon(Icons.info_outline),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
             title: Text(context.l10n.appName),
-            subtitle: Text('Phien ban 1.0.0'),
+            subtitle: Text(context.l10n.version),
           ),
         ],
       ),

@@ -22,9 +22,9 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
 
   Future<void> _load() async {
     final database = ref.read(db.appDatabaseProvider);
-    final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+    final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings != null) {
-      final store = await (db.select(db.stores)..where((t) => t.id.equals(settings.value))).getSingleOrNull();
+      final store = await (database.select(database.stores)..where((t) => t.id.equals(settings.value))).getSingleOrNull();
       if (store != null) _nameCtrl.text = store.name;
     }
     setState(() => _loading = false);
@@ -50,10 +50,10 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                 SizedBox(width: double.infinity, child: ElevatedButton(
                   onPressed: () async {
                     final database = ref.read(db.appDatabaseProvider);
-                    final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+                    final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
                     if (settings != null) {
-                      await (db.update(db.stores)..where((t) => t.id.equals(settings.value))).write(
-                        StoresCompanion.custom({'name': _nameCtrl.text.trim(), 'updated_at': DateTime.now().millisecondsSinceEpoch}),
+                      await (database.update(database.stores)..where((t) => t.id.equals(settings.value))).write(
+                        db.StoresCompanion.custom({'name': _nameCtrl.text.trim(), 'updated_at': DateTime.now().millisecondsSinceEpoch}),
                       );
                       if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved')));
                     }

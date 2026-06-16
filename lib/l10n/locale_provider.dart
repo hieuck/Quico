@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final localeProvider = StateProvider<Locale>((ref) => const Locale('vi'));
-
-final localeStringProvider = Provider.family<String, String>((ref, key) {
-  return key;
-});
+final localeProvider = Provider<Locale>((ref) => const Locale('vi'));
