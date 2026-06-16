@@ -134,17 +134,17 @@ class ProductRepository {
       storeId: row['store_id'],
       name: row['name'],
       normalizedName: row['normalized_name'],
-      sku: row['sku']?,
-      barcode: row['barcode']?,
+      sku: row['sku'] as String?,
+      barcode: row['barcode'] as String?,
       costPrice: (row['cost_price'] as num).toInt(),
       salePrice: (row['sale_price'] as num).toInt(),
       stockQuantity: (row['stock_quantity'] as num).toInt(),
       lowStockThreshold: (row['low_stock_threshold'] as num).toInt(),
-      imagePath: row['image_path']?,
+      imagePath: row['image_path'] as String?,
       isActive: row['is_active'] == 1,
       createdAt: (row['created_at'] as num).toInt(),
       updatedAt: (row['updated_at'] as num).toInt(),
-      deletedAt: row['deleted_at']?,
+      deletedAt: row['deleted_at'] as int?,
     );
   }
 }
