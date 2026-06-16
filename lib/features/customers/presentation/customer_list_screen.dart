@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/utils/currency_formatter.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../domain/customer.dart';
 import '../../../l10n/l10n_extension.dart';
 
 final _customerListProvider = FutureProvider.autoDispose<List<Customer>>((ref) async {
-  final database = ref.read(db.appDatabaseProvider);
+  final database = ref.read(appDatabaseProvider);
   final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   if (settings == null) return [];
   final rows = await (database.select(database.customers)

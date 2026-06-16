@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/utils/validators.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 
@@ -69,20 +69,20 @@ class _StoreSetupScreenState extends State<StoreSetupScreen> {
     final name = _storeName.trim();
     if (name.isEmpty) return;
 
-    final database = ref.read(db.appDatabaseProvider);
+    final database = ref.read(appDatabaseProvider);
     final now = DateTimeUtils.nowMillis();
     final storeId = IdGenerator.newId();
 
-    database.into(database.stores).insert(db.StoresCompanion.insert(
+    database.into(database.stores).insert(StoresCompanion.insert(
       id: storeId,
       name: name,
-      businessType: _businessType.isNotEmpty ? db.Value(_businessType) : db.Value.absent(),
+      businessType: _businessType.isNotEmpty ? Value(_businessType) : Value.absent(),
       currency: 'VND',
       createdAt: now,
       updatedAt: now,
     ));
 
-    database.into(database.appSettings).insert(db.AppSettingsCompanion.insert(
+    database.into(database.appSettings).insert(AppSettingsCompanion.insert(
       key: 'active_store_id',
       value: storeId,
       updatedAt: now,

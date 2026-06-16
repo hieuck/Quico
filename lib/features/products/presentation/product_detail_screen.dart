@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/utils/currency_formatter.dart';
 import '../../../shared/widgets/product_image.dart';
 import '../../../shared/widgets/loading_state.dart';
@@ -11,7 +11,7 @@ import '../domain/product.dart';
 import '../../../l10n/l10n_extension.dart';
 
 final _productProvider = FutureProvider.autoDispose.family<Product?, String>((ref, id) async {
-  final database = ref.read(db.appDatabaseProvider);
+  final database = ref.read(appDatabaseProvider);
   final repo = ProductRepository(db);
   return repo.getProductById(id);
 });
@@ -35,7 +35,7 @@ class ProductDetailScreen extends ConsumerWidget {
               } else if (v == 'deactivate') {
                 final confirmed = await ConfirmDialog.show(context, title: context.l10n.deactivate, message: 'San pham se an khoi POS.', confirmLabel: 'Ngung ban', destructive: true);
                 if (confirmed) {
-                  final database = ref.read(db.appDatabaseProvider);
+                  final database = ref.read(appDatabaseProvider);
                   await ProductRepository(db).deactivateProduct(productId);
                   if (context.mounted) context.pop();
                 }

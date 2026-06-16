@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/local_storage/backup_file_service.dart';
 import '../../../l10n/l10n_extension.dart';
 
@@ -20,7 +20,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   Future<void> _exportBackup() async {
     setState(() => _loading = true);
     try {
-      final database = ref.read(db.appDatabaseProvider);
+      final database = ref.read(appDatabaseProvider);
       final stores = await database.select(database.stores).get();
       final products = await database.select(database.products).get();
       final customers = await database.select(database.customers).get();

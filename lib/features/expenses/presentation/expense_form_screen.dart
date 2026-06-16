@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../../../l10n/l10n_extension.dart';
@@ -33,17 +33,17 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     final amount = int.tryParse(_amountCtrl.text);
     if (amount == null || amount <= 0) return;
 
-    final database = ref.read(db.appDatabaseProvider);
+    final database = ref.read(appDatabaseProvider);
     final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings == null) return;
 
     final now = DateTimeUtils.nowMillis();
-    database.into(database.expenses).insert(db.ExpensesCompanion.insert(
+    database.into(database.expenses).insert(ExpensesCompanion.insert(
       id: IdGenerator.newId(),
       storeId: settings.value,
       category: _category,
       amount: amount,
-      note: _noteCtrl.text.trim().isNotEmpty ? db.Value(_noteCtrl.text.trim()) : Value.absent(),
+      note: _noteCtrl.text.trim().isNotEmpty ? Value(_noteCtrl.text.trim()) : Value.absent(),
       spentAt: now,
       createdAt: now,
       updatedAt: now,

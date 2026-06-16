@@ -1,238 +1,210 @@
-import 'package:drift/drift.dart';
-import '../../../core/database/app_database.dart' as db;
+import 'package:sqflite/sqflite.dart';
+import '../../../core/database/app_database.dart';
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../domain/order.dart';
 
 class OrderRepository {
-  final db.AppDatabase _db;
+  final AppDatabase _db;
 
   OrderRepository(this._db);
 
+  Future<Database> get _d => _db.database;
+
   Future<String> generateNextOrderCode(String storeId) async {
-    final settings = _db.select(_db.appSettings);
+    final db = await _d;
     final key = 'order_sequence:$storeId';
-    final row = await (settings..where((t) => t.key.equals(key))).getSingleOrNull();
+    final rows = await db.query('app_settings', where: 'key = ?', whereArgs: [key]);
     int nextSeq = 1;
-    if (row != null) {
-      nextSeq = int.tryParse(row.value) ?? 1;
+    if (rows.isNotEmpty) {
+      nextSeq = int.tryParse(rows.first['value'] as String) ?? 1;
     }
-    await (settings..where((t) => t.key.equals(key))).upsert(db.AppSettingsCompanion.insert(
-      key: key,
-      value: (nextSeq + 1).toString(),
-      updatedAt: DateTimeUtils.nowMillis(),
-    ));
+    await db.insert('app_settings', {
+      'key': key,
+      'value': (nextSeq + 1).toString(),
+      'updated_at': DateTimeUtils.nowMillis(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
     return 'DH${nextSeq.toString().padLeft(6, '0')}';
   }
 
   Future<Order> completeOrder(CompleteOrderInput input) async {
-    return await _db.transaction(() async {
-      final now = DateTimeUtils.nowMillis();
-      final orderId = IdGenerator.newId();
-      final orderCode = await generateNextOrderCode(input.storeId);
+    final db = await _d;
+    final now = DateTimeUtils.nowMillis();
+    final orderId = IdGenerator.newId();
+    final orderCode = await generateNextOrderCode(input.storeId);
 
-      final items = input.items;
-      final subtotal = items.fold(0, (s, i) => s + (i.quantity * i.unitPrice));
-      final totalAmount = subtotal - input.discountAmount >= 0 ? subtotal - input.discountAmount : 0;
-      final costAmount = items.fold(0, (s, i) => s + (i.quantity * i.costPrice));
-      final grossProfit = totalAmount - costAmount;
+    final subtotal = input.items.fold(0, (s, i) => s + (i.quantity * i.unitPrice));
+    final totalAmount = subtotal - input.discountAmount >= 0 ? subtotal - input.discountAmount : 0;
+    final costAmount = input.items.fold(0, (s, i) => s + (i.quantity * i.costPrice));
+    final grossProfit = totalAmount - costAmount;
 
-      _db.into(_db.orders).insert(db.OrdersCompanion.insert(
-        id: orderId,
-        storeId: input.storeId,
-        customerId: input.customerId != null ? db.Value(input.customerId!) : Value.absent(),
-        orderCode: orderCode,
-        status: const Constant('paid'),
-        paymentStatus: input.paymentStatus as String,
-        paymentMethod: input.paymentMethod != null ? db.Value(input.paymentMethod!) : Value.absent(),
-        subtotal: subtotal,
-        discountAmount: input.discountAmount,
-        totalAmount: totalAmount,
-        costAmount: costAmount,
-        grossProfit: grossProfit,
-        paidAmount: input.paidAmount,
-        source: input.source,
-        originalInput: input.originalInput != null ? db.Value(input.originalInput!) : Value.absent(),
-        note: input.note != null ? db.Value(input.note!) : Value.absent(),
-        completedAt: db.Value(now),
-        createdAt: now,
-        updatedAt: now,
-      ));
+    await db.insert('orders', {
+      'id': orderId,
+      'store_id': input.storeId,
+      'customer_id': input.customerId,
+      'order_code': orderCode,
+      'status': 'paid',
+      'payment_status': input.paymentStatus ?? 'paid',
+      'payment_method': input.paymentMethod,
+      'subtotal': subtotal,
+      'discount_amount': input.discountAmount,
+      'total_amount': totalAmount,
+      'cost_amount': costAmount,
+      'gross_profit': grossProfit,
+      'paid_amount': input.paidAmount,
+      'source': input.source,
+      'original_input': input.originalInput,
+      'note': input.note,
+      'completed_at': now,
+      'created_at': now,
+      'updated_at': now,
+    });
 
-      for (final item in items) {
-        final lineTotal = (item.quantity * item.unitPrice) - item.discountAmount;
-        final lineProfit = lineTotal - (item.quantity * item.costPrice);
-        _db.into(_db.orderItems).insert(db.OrderItemsCompanion.insert(
-          id: IdGenerator.newId(),
-          orderId: orderId,
-          productId: item.productId != null ? db.Value(item.productId!) : Value.absent(),
-          productName: item.productName,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          costPrice: item.costPrice,
-          discountAmount: item.discountAmount,
-          lineTotal: lineTotal,
-          lineProfit: lineProfit,
-          note: item.note != null ? db.Value(item.note!) : Value.absent(),
-          createdAt: now,
-          updatedAt: now,
-        ));
+    Batch? batch;
+    for (final item in input.items) {
+      final lineTotal = (item.quantity * item.unitPrice) - item.discountAmount;
+      final lineProfit = lineTotal - (item.quantity * item.costPrice);
+      await db.insert('order_items', {
+        'id': IdGenerator.newId(),
+        'order_id': orderId,
+        'product_id': item.productId,
+        'product_name': item.productName,
+        'quantity': item.quantity,
+        'unit_price': item.unitPrice,
+        'cost_price': item.costPrice,
+        'discount_amount': item.discountAmount,
+        'line_total': lineTotal,
+        'line_profit': lineProfit,
+        'note': item.note,
+        'created_at': now,
+        'updated_at': now,
+      });
 
-        if (item.productId != null) {
-          _db.into(_db.inventoryMovements).insert(db.InventoryMovementsCompanion.insert(
-            id: IdGenerator.newId(),
-            storeId: input.storeId,
-            productId: item.productId!,
-            type: 'sale',
-            quantityDelta: -item.quantity,
-            quantityAfter: 0,
-            referenceType: const db.Value('order'),
-            referenceId: db.Value(orderId),
-            createdAt: now,
-          ));
-
-          final product = await (_db.select(_db.products)..where((t) => t.id.equals(item.productId!))).getSingleOrNull();
-          if (product != null) {
-            final newStock = product.stockQuantity - item.quantity;
-            await (_db.update(_db.products)..where((t) => t.id.equals(item.productId!))).write(
-              db.ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
-            );
-          }
-        }
-      }
-
-      if (input.customerId != null) {
-        final customerOrders = await (_db.select(_db.orders)
-          ..where((t) => t.customerId.equals(input.customerId!))
-          ..where((t) => t.status.equals('paid'))
-        ).get();
-        final totalSpent = customerOrders.fold(0, (s, o) => s + o.totalAmount);
-        await (_db.update(_db.customers)..where((t) => t.id.equals(input.customerId!))).write(
-          db.CustomersCompanion.custom({
-            'total_orders': customerOrders.length,
-            'total_spent': totalSpent,
-            'updated_at': now,
-          }),
+      if (item.productId != null) {
+        await db.insert('inventory_movements', {
+          'id': IdGenerator.newId(),
+          'store_id': input.storeId,
+          'product_id': item.productId,
+          'type': 'sale',
+          'quantity_delta': -item.quantity,
+          'quantity_after': 0,
+          'reference_type': 'order',
+          'reference_id': orderId,
+          'created_at': now,
+        });
+        await db.rawUpdate(
+          'UPDATE products SET stock_quantity = stock_quantity - ?, updated_at = ? WHERE id = ?',
+          [item.quantity, now, item.productId],
         );
       }
+    }
 
-      return Order(
-        id: orderId,
-        storeId: input.storeId,
-        customerId: input.customerId,
-        orderCode: orderCode,
-        status: 'paid',
-        paymentStatus: input.paymentStatus ?? 'paid',
-        paymentMethod: input.paymentMethod,
-        subtotal: subtotal,
-        discountAmount: input.discountAmount,
-        totalAmount: totalAmount,
-        costAmount: costAmount,
-        grossProfit: grossProfit,
-        paidAmount: input.paidAmount,
-        source: input.source,
-        originalInput: input.originalInput,
-        note: input.note,
-        completedAt: now,
-        cancelledAt: null,
-        createdAt: now,
-        updatedAt: now,
+    if (input.customerId != null) {
+      final paidRows = await db.query('orders',
+        where: 'customer_id = ? AND status = ?',
+        whereArgs: [input.customerId, 'paid'],
       );
-    });
-  }
+      final totalSpent = paidRows.fold<int>(0, (s, r) => s + (r['total_amount'] as int));
+      await db.update('customers',
+        {'total_orders': paidRows.length, 'total_spent': totalSpent, 'updated_at': now},
+        where: 'id = ?', whereArgs: [input.customerId],
+      );
+    }
 
-  Future<Order?> getOrderById(String id) async {
-    final row = await (_db.select(_db.orders)..where((t) => t.id.equals(id))).getSingleOrNull();
-    if (row == null) return null;
     return Order(
-      id: row.id,
-      storeId: row.storeId,
-      customerId: row.customerId,
-      orderCode: row.orderCode,
-      status: row.status,
-      paymentStatus: row.paymentStatus,
-      paymentMethod: row.paymentMethod,
-      subtotal: row.subtotal,
-      discountAmount: row.discountAmount,
-      totalAmount: row.totalAmount,
-      costAmount: row.costAmount,
-      grossProfit: row.grossProfit,
-      paidAmount: row.paidAmount,
-      source: row.source,
-      originalInput: row.originalInput,
-      note: row.note,
-      completedAt: row.completedAt,
-      cancelledAt: row.cancelledAt,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
+      id: orderId,
+      storeId: input.storeId,
+      customerId: input.customerId,
+      orderCode: orderCode,
+      status: 'paid',
+      paymentStatus: input.paymentStatus ?? 'paid',
+      paymentMethod: input.paymentMethod,
+      subtotal: subtotal,
+      discountAmount: input.discountAmount,
+      totalAmount: totalAmount,
+      costAmount: costAmount,
+      grossProfit: grossProfit,
+      paidAmount: input.paidAmount,
+      source: input.source,
+      originalInput: input.originalInput,
+      note: input.note,
+      completedAt: now,
+      cancelledAt: null,
+      createdAt: now,
+      updatedAt: now,
     );
   }
 
+  Future<Order?> getOrderById(String id) async {
+    final db = await _d;
+    final rows = await db.query('orders', where: 'id = ?', whereArgs: [id]);
+    if (rows.isEmpty) return null;
+    return _orderFromRow(rows.first);
+  }
+
   Future<List<Order>> listOrders(OrderFilter filter) async {
-    var query = _db.select(_db.orders)..orderBy([(t) => db.OrderingTerm(expression: t.createdAt, mode: db.OrderingMode.desc)]);
+    final db = await _d;
+    var query = 'SELECT * FROM orders';
+    final conditions = <String>[];
+    final args = <dynamic>[];
     if (filter.status != null) {
-      query.where((t) => t.status.equals(filter.status!));
+      conditions.add('status = ?');
+      args.add(filter.status);
     }
     if (filter.paymentStatus != null) {
-      query.where((t) => t.paymentStatus.equals(filter.paymentStatus!));
+      conditions.add('payment_status = ?');
+      args.add(filter.paymentStatus);
     }
-    if (filter.limit != null) {
-      query.limit(filter.limit!);
+    if (conditions.isNotEmpty) {
+      query += ' WHERE ${conditions.join(" AND ")}';
     }
-    if (filter.offset != null) {
-      query.offset(filter.offset!);
-    }
-    final rows = await query.get();
-    return rows.map((r) => Order(
-      id: r.id,
-      storeId: r.storeId,
-      customerId: r.customerId,
-      orderCode: r.orderCode,
-      status: r.status,
-      paymentStatus: r.paymentStatus,
-      paymentMethod: r.paymentMethod,
-      subtotal: r.subtotal,
-      discountAmount: r.discountAmount,
-      totalAmount: r.totalAmount,
-      costAmount: r.costAmount,
-      grossProfit: r.grossProfit,
-      paidAmount: r.paidAmount,
-      source: r.source,
-      originalInput: r.originalInput,
-      note: r.note,
-      completedAt: r.completedAt,
-      cancelledAt: r.cancelledAt,
-      createdAt: r.createdAt,
-      updatedAt: r.updatedAt,
-    )).toList();
+    query += ' ORDER BY created_at DESC';
+    if (filter.limit != null) query += ' LIMIT ${filter.limit}';
+    if (filter.offset != null) query += ' OFFSET ${filter.offset}';
+
+    final rows = await db.rawQuery(query, args);
+    return rows.map(_orderFromRow).toList();
   }
 
   Future<void> cancelOrder(String orderId) async {
-    await _db.transaction(() async {
-      final now = DateTimeUtils.nowMillis();
-      final order = await getOrderById(orderId);
-      if (order == null) return;
+    final db = await _d;
+    final now = DateTimeUtils.nowMillis();
+    await db.update('orders', {'status': 'cancelled', 'cancelled_at': now, 'updated_at': now},
+        where: 'id = ?', whereArgs: [orderId]);
 
-      await (_db.update(_db.orders)..where((t) => t.id.equals(orderId))).write(
-        db.OrdersCompanion.custom({
-          'status': 'cancelled',
-          'cancelled_at': now,
-          'updated_at': now,
-        }),
-      );
-
-      final items = await (_db.select(_db.orderItems)..where((t) => t.orderId.equals(orderId))).get();
-      for (final item in items) {
-        if (item.productId != null) {
-          final product = await (_db.select(_db.products)..where((t) => t.id.equals(item.productId!))).getSingleOrNull();
-          if (product != null) {
-            final newStock = product.stockQuantity + item.quantity;
-            await (_db.update(_db.products)..where((t) => t.id.equals(item.productId!))).write(
-              db.ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
-            );
-          }
-        }
+    final items = await db.query('order_items', where: 'order_id = ?', whereArgs: [orderId]);
+    for (final item in items) {
+      if (item['product_id'] != null) {
+        await db.rawUpdate(
+          'UPDATE products SET stock_quantity = stock_quantity + ?, updated_at = ? WHERE id = ?',
+          [item['quantity'] as int, now, item['product_id']],
+        );
       }
-    });
+    }
+  }
+
+  Order _orderFromRow(Map<String, dynamic> row) {
+    return Order(
+      id: row['id'] as String,
+      storeId: row['store_id'] as String,
+      customerId: row['customer_id'] as String?,
+      orderCode: row['order_code'] as String,
+      status: row['status'] as String,
+      paymentStatus: row['payment_status'] as String,
+      paymentMethod: row['payment_method'] as String?,
+      subtotal: (row['subtotal'] as num).toInt(),
+      discountAmount: (row['discount_amount'] as num).toInt(),
+      totalAmount: (row['total_amount'] as num).toInt(),
+      costAmount: (row['cost_amount'] as num).toInt(),
+      grossProfit: (row['gross_profit'] as num).toInt(),
+      paidAmount: (row['paid_amount'] as num).toInt(),
+      source: row['source'] as String,
+      originalInput: row['original_input'] as String?,
+      note: row['note'] as String?,
+      completedAt: row['completed_at'] as int?,
+      cancelledAt: row['cancelled_at'] as int?,
+      createdAt: (row['created_at'] as num).toInt(),
+      updatedAt: (row['updated_at'] as num).toInt(),
+    );
   }
 }

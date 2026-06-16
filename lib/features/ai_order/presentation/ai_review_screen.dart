@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/ai/parser/parsed_order_models.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../shared/widgets/confirm_dialog.dart';
@@ -159,7 +159,7 @@ class AiReviewScreen extends ConsumerWidget {
     if (!confirmed || !context.mounted) return;
 
     try {
-      final database = ref.read(db.appDatabaseProvider);
+      final database = ref.read(appDatabaseProvider);
       final repo = OrderRepository(db);
       final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
       if (settings == null) return;

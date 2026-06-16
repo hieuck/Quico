@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart';
+
 
 class BankAccounts extends Table {
   TextColumn get id => text()();

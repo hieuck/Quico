@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/receipt/receipt_renderer.dart';
 import '../../../shared/widgets/loading_state.dart';
 import '../../../l10n/l10n_extension.dart';
 
 final _receiptDataProvider = FutureProvider.autoDispose.family<ReceiptData?, String>((ref, orderId) async {
-  final database = ref.read(db.appDatabaseProvider);
+  final database = ref.read(appDatabaseProvider);
   final order = await (database.select(database.orders)..where((t) => t.id.equals(orderId))).getSingleOrNull();
   if (order == null) return null;
   final items = await (database.select(database.orderItems)..where((t) => t.orderId.equals(orderId))).get();

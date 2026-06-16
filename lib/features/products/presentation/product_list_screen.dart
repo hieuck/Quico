@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/utils/currency_formatter.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/loading_state.dart';
@@ -11,14 +11,14 @@ import '../domain/product.dart';
 import '../../../l10n/l10n_extension.dart';
 
 final _productListProvider = FutureProvider.autoDispose<List<Product>>((ref) async {
-  final database = ref.read(db.appDatabaseProvider);
+  final database = ref.read(appDatabaseProvider);
   final repo = ProductRepository(db);
   final storeId = await _getStoreId(db);
   if (storeId == null) return [];
   return repo.listProducts(storeId);
 });
 
-Future<String?> _getStoreId(db.AppDatabase db) async {
+Future<String?> _getStoreId(AppDatabase db) async {
   final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   return settings?.value;
 }

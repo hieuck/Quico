@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/database/app_database.dart' as db;
+import '../../../../core/database/app_database.dart' ;
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/status_badge.dart';
@@ -10,7 +10,7 @@ import '../../domain/order.dart';
 import '../../../../l10n/l10n_extension.dart';
 
 final _orderListProvider = FutureProvider.autoDispose<List<Order>>((ref) async {
-  final database = ref.read(db.appDatabaseProvider);
+  final database = ref.read(appDatabaseProvider);
   final repo = OrderRepository(db);
   return repo.listOrders(const OrderFilter(limit: 50));
 });

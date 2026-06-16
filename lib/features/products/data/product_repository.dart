@@ -1,124 +1,120 @@
-import 'package:drift/drift.dart';
-import '../../../core/database/app_database.dart' as db;
+import 'dart:io' show File;
+import 'package:sqflite/sqflite.dart';
+import '../../../core/database/app_database.dart';
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/text_normalizer.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../domain/product.dart';
 
 class ProductRepository {
-  final db.AppDatabase _db;
+  final AppDatabase _db;
 
   ProductRepository(this._db);
 
+  Future<Database> get _database => _db.database;
+
   Future<List<Product>> listProducts(String storeId) async {
-    final rows = await (_db.select(_db.products)
-      ..where((t) => t.storeId.equals(storeId))
-      ..where((t) => t.deletedAt.isNull())
-      ..orderBy([(t) => db.OrderingTerm(expression: t.name, mode: db.OrderingMode.asc)])
-    ).get();
+    final db = await _database;
+    final rows = await db.query('products',
+      where: 'store_id = ? AND deleted_at IS NULL',
+      whereArgs: [storeId],
+      orderBy: 'name ASC',
+    );
     return rows.map(_toDomain).toList();
   }
 
   Future<List<Product>> listActiveProducts(String storeId) async {
-    final rows = await (_db.select(_db.products)
-      ..where((t) => t.storeId.equals(storeId))
-      ..where((t) => t.isActive.equals(true))
-      ..where((t) => t.deletedAt.isNull())
-    ).get();
+    final db = await _database;
+    final rows = await db.query('products',
+      where: 'store_id = ? AND is_active = 1 AND deleted_at IS NULL',
+      whereArgs: [storeId],
+    );
     return rows.map(_toDomain).toList();
   }
 
   Future<List<Product>> searchProducts(String storeId, String query) async {
     final normalized = TextNormalizer.normalize(query);
-    final rows = await (_db.select(_db.products)
-      ..where((t) => t.storeId.equals(storeId))
-      ..where((t) => t.deletedAt.isNull())
-    ).get();
-    return rows
-        .map(_toDomain)
-        .where((p) =>
-            p.normalizedName.contains(normalized) ||
-            p.name.toLowerCase().contains(query.toLowerCase()) ||
-            (p.sku?.toLowerCase().contains(query.toLowerCase()) ?? false))
-        .toList();
+    final db = await _database;
+    final rows = await db.query('products',
+      where: 'store_id = ? AND deleted_at IS NULL AND (normalized_name LIKE ? OR name LIKE ? OR sku LIKE ?)',
+      whereArgs: [storeId, '%$normalized%', '%$query%', '%$query%'],
+    );
+    return rows.map(_toDomain).toList();
   }
 
   Future<List<Product>> listLowStockProducts(String storeId) async {
-    final rows = await (_db.select(_db.products)
-      ..where((t) => t.storeId.equals(storeId))
-      ..where((t) => t.deletedAt.isNull())
-      ..where((t) => t.isActive.equals(true))
-    ).get();
-    return rows.map(_toDomain).where((p) => p.isLowStock).toList();
+    final db = await _database;
+    final rows = await db.query('products',
+      where: 'store_id = ? AND deleted_at IS NULL AND is_active = 1 AND stock_quantity <= low_stock_threshold',
+      whereArgs: [storeId],
+    );
+    return rows.map(_toDomain).toList();
   }
 
   Future<Product?> getProductById(String id) async {
-    final row = await (_db.select(_db.products)..where((t) => t.id.equals(id))).getSingleOrNull();
-    return row != null ? _toDomain(row) : null;
+    final db = await _database;
+    final rows = await db.query('products', where: 'id = ?', whereArgs: [id]);
+    if (rows.isEmpty) return null;
+    return _toDomain(rows.first);
   }
 
   Future<Product> createProduct(CreateProductInput input) async {
+    final db = await _database;
     final now = DateTimeUtils.nowMillis();
     final id = IdGenerator.newId();
-    final normalizedName = TextNormalizer.normalize(input.name);
     final normalizedFull = TextNormalizer.expandAbbreviations(input.name);
 
-    _db.into(_db.products).insert(db.ProductsCompanion.insert(
-      id: id,
-      storeId: input.storeId,
-      name: input.name,
-      normalizedName: normalizedFull,
-      costPrice: input.costPrice,
-      salePrice: input.salePrice,
-      stockQuantity: input.stockQuantity,
-      lowStockThreshold: input.lowStockThreshold,
-      imagePath: input.imagePath != null ? db.Value(input.imagePath!) : Value.absent(),
-      sku: input.sku != null ? db.Value(input.sku!) : Value.absent(),
-      barcode: input.barcode != null ? db.Value(input.barcode!) : Value.absent(),
-      createdAt: now,
-      updatedAt: now,
-    ));
+    await db.insert('products', {
+      'id': id,
+      'store_id': input.storeId,
+      'name': input.name,
+      'normalized_name': normalizedFull,
+      'sku': input.sku,
+      'barcode': input.barcode,
+      'cost_price': input.costPrice,
+      'sale_price': input.salePrice,
+      'stock_quantity': input.stockQuantity,
+      'low_stock_threshold': input.lowStockThreshold,
+      'image_path': input.imagePath,
+      'is_active': 1,
+      'created_at': now,
+      'updated_at': now,
+    });
 
     if (input.stockQuantity > 0) {
-      _db.into(_db.inventoryMovements).insert(db.InventoryMovementsCompanion.insert(
-        id: IdGenerator.newId(),
-        storeId: input.storeId,
-        productId: id,
-        type: 'initial',
-        quantityDelta: input.stockQuantity,
-        quantityAfter: input.stockQuantity,
-        createdAt: now,
-      ));
+      await db.insert('inventory_movements', {
+        'id': IdGenerator.newId(),
+        'store_id': input.storeId,
+        'product_id': id,
+        'type': 'initial',
+        'quantity_delta': input.stockQuantity,
+        'quantity_after': input.stockQuantity,
+        'created_at': now,
+      });
     }
 
-    final created = await getProductById(id);
-    return created!;
+    return (await getProductById(id))!;
   }
 
   Future<Product> updateProduct(UpdateProductInput input) async {
+    final db = await _database;
     final now = DateTimeUtils.nowMillis();
-    final updates = <String, dynamic>{};
-
+    final values = <String, dynamic>{'updated_at': now};
     if (input.name != null) {
-      updates['name'] = input.name;
-      updates['normalized_name'] = TextNormalizer.expandAbbreviations(input.name!);
+      values['name'] = input.name;
+      values['normalized_name'] = TextNormalizer.expandAbbreviations(input.name!);
     }
-    if (input.sku != null) updates['sku'] = input.sku;
-    if (input.barcode != null) updates['barcode'] = input.barcode;
-    if (input.costPrice != null) updates['cost_price'] = input.costPrice;
-    if (input.salePrice != null) updates['sale_price'] = input.salePrice;
-    if (input.stockQuantity != null) updates['stock_quantity'] = input.stockQuantity;
-    if (input.lowStockThreshold != null) updates['low_stock_threshold'] = input.lowStockThreshold;
-    if (input.imagePath != null) updates['image_path'] = input.imagePath;
-    if (input.isActive != null) updates['is_active'] = input.isActive;
-    updates['updated_at'] = now;
+    if (input.sku != null) values['sku'] = input.sku;
+    if (input.barcode != null) values['barcode'] = input.barcode;
+    if (input.costPrice != null) values['cost_price'] = input.costPrice;
+    if (input.salePrice != null) values['sale_price'] = input.salePrice;
+    if (input.stockQuantity != null) values['stock_quantity'] = input.stockQuantity;
+    if (input.lowStockThreshold != null) values['low_stock_threshold'] = input.lowStockThreshold;
+    if (input.imagePath != null) values['image_path'] = input.imagePath;
+    if (input.isActive != null) values['is_active'] = input.isActive ? 1 : 0;
 
-    await (_db.update(_db.products)..where((t) => t.id.equals(input.id))).write(
-      db.ProductsCompanion.custom(updates),
-    );
-
-    final updated = await getProductById(input.id);
-    return updated!;
+    await db.update('products', values, where: 'id = ?', whereArgs: [input.id]);
+    return (await getProductById(input.id))!;
   }
 
   Future<void> deactivateProduct(String id) async {
@@ -126,29 +122,29 @@ class ProductRepository {
   }
 
   Future<void> softDeleteProduct(String id) async {
+    final db = await _database;
     final now = DateTimeUtils.nowMillis();
-    await (_db.update(_db.products)..where((t) => t.id.equals(id))).write(
-      db.ProductsCompanion.custom({'deleted_at': now, 'updated_at': now}),
-    );
+    await db.update('products', {'deleted_at': now, 'updated_at': now},
+        where: 'id = ?', whereArgs: [id]);
   }
 
-  Product _toDomain(ProductRow row) {
+  Product _toDomain(Map<String, dynamic> row) {
     return Product(
-      id: row.id,
-      storeId: row.storeId,
-      name: row.name,
-      normalizedName: row.normalizedName,
-      sku: row.sku,
-      barcode: row.barcode,
-      costPrice: row.costPrice,
-      salePrice: row.salePrice,
-      stockQuantity: row.stockQuantity,
-      lowStockThreshold: row.lowStockThreshold,
-      imagePath: row.imagePath,
-      isActive: row.isActive,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      deletedAt: row.deletedAt,
+      id: row['id'] as String,
+      storeId: row['store_id'] as String,
+      name: row['name'] as String,
+      normalizedName: row['normalized_name'] as String,
+      sku: row['sku'] as String?,
+      barcode: row['barcode'] as String?,
+      costPrice: (row['cost_price'] as num).toInt(),
+      salePrice: (row['sale_price'] as num).toInt(),
+      stockQuantity: (row['stock_quantity'] as num).toInt(),
+      lowStockThreshold: (row['low_stock_threshold'] as num).toInt(),
+      imagePath: row['image_path'] as String?,
+      isActive: row['is_active'] == 1,
+      createdAt: (row['created_at'] as num).toInt(),
+      updatedAt: (row['updated_at'] as num).toInt(),
+      deletedAt: row['deleted_at'] as int?,
     );
   }
 }

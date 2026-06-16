@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/database/app_database.dart' as db;
+import '../../../../core/database/app_database.dart' ;
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/widgets/product_image.dart';
 import '../../../../shared/widgets/confirm_dialog.dart';
@@ -12,7 +12,7 @@ import '../../data/order_repository.dart';
 import '../../../../l10n/l10n_extension.dart';
 
 final _activeProductsProvider = FutureProvider.autoDispose<List<Product>>((ref) async {
-  final database = ref.read(db.appDatabaseProvider);
+  final database = ref.read(appDatabaseProvider);
   final repo = ProductRepository(db);
   final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   if (settings == null) return [];
@@ -57,7 +57,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     if (!confirmed || !mounted) return;
 
     try {
-      final database = ref.read(db.appDatabaseProvider);
+      final database = ref.read(appDatabaseProvider);
       final repo = OrderRepository(db);
       final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
       if (settings == null) return;

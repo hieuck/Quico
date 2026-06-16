@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:io' show File;
 import 'package:image_picker/image_picker.dart';
 import '../../../core/utils/validators.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/local_storage/image_storage_service.dart';
 import '../../../core/local_storage/local_file_storage.dart';
 import '../../../core/utils/id_generator.dart';
@@ -40,7 +40,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   }
 
   Future<void> _loadProduct() async {
-    final database = ref.read(db.appDatabaseProvider);
+    final database = ref.read(appDatabaseProvider);
     final repo = ProductRepository(db);
     final product = await repo.getProductById(widget.productId!);
     if (product != null) {
@@ -82,7 +82,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     setState(() => _loading = true);
 
     try {
-      final database = ref.read(db.appDatabaseProvider);
+      final database = ref.read(appDatabaseProvider);
       final repo = ProductRepository(db);
       final storeId = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
       if (storeId == null) return;

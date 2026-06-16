@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/utils/currency_formatter.dart';
 import '../domain/customer.dart';
 import '../../../l10n/l10n_extension.dart';
 
 final _customerDetailProvider = FutureProvider.autoDispose.family<Customer?, String>((ref, id) async {
-  final database = ref.read(db.appDatabaseProvider);
+  final database = ref.read(appDatabaseProvider);
   final row = await (database.select(database.customers)..where((t) => t.id.equals(id))).getSingleOrNull();
   if (row == null) return null;
   return Customer(

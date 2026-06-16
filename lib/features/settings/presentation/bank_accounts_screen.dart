@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../../../l10n/l10n_extension.dart';
@@ -30,12 +30,12 @@ class _BankAccountsScreenState extends ConsumerState<BankAccountsScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    final database = ref.read(db.appDatabaseProvider);
+    final database = ref.read(appDatabaseProvider);
     final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings == null) return;
 
     final now = DateTimeUtils.nowMillis();
-    database.into(database.bankAccounts).insert(db.BankAccountsCompanion.insert(
+    database.into(database.bankAccounts).insert(BankAccountsCompanion.insert(
       id: IdGenerator.newId(),
       storeId: settings.value,
       bankCode: _bankCodeCtrl.text.trim(),

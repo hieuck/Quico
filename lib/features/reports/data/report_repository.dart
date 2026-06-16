@@ -1,76 +1,65 @@
-import 'package:drift/drift.dart';
-import '../../../core/database/app_database.dart' as db;
+import 'package:sqflite/sqflite.dart';
+import '../../../core/database/app_database.dart';
 import '../../../core/utils/date_time_utils.dart';
 
 class ReportRepository {
-  final db.AppDatabase _db;
+  final AppDatabase _db;
 
   ReportRepository(this._db);
 
+  Future<Database> get _d => _db.database;
+
   Future<DashboardSummary> getDashboardSummary(String storeId) async {
     final range = DateTimeUtils.today();
-    return await _getSummary(storeId, range);
+    return _getSummary(storeId, range.start, range.end);
   }
 
   Future<DashboardSummary> getRevenueReport(String storeId, DateRange range) async {
-    return await _getSummary(storeId, range);
+    return _getSummary(storeId, range.start, range.end);
   }
 
-  Future<DashboardSummary> _getSummary(String storeId, DateRange range) async {
-    final orders = await (_db.select(__db.orders)
-      ..where((t) => t.storeId.equals(storeId))
-      ..where((t) => t.createdAt.isBetweenValues(range.start, range.end))
-      ..where((t) => t.status.isNotIn(['draft', 'cancelled', 'refunded']))
-    ).get();
+  Future<DashboardSummary> _getSummary(String storeId, int start, int end) async {
+    final db = await _d;
+    final orderRows = await db.query('orders',
+      where: 'store_id = ? AND created_at >= ? AND created_at <= ? AND status NOT IN (?, ?, ?)',
+      whereArgs: [storeId, start, end, 'draft', 'cancelled', 'refunded'],
+    );
 
-    final revenue = orders.fold<int>(0, (s, o) => s + o.totalAmount);
-    final profit = orders.fold<int>(0, (s, o) => s + o.grossProfit);
-    final expenseRows = await (_db.select(_db.expenses)
-      ..where((t) => t.storeId.equals(storeId))
-      ..where((t) => t.spentAt.isBetweenValues(range.start, range.end))
-      ..where((t) => t.deletedAt.isNull())
-    ).get();
-    final expenses = expenseRows.fold<int>(0, (s, e) => s + e.amount);
-    final netProfit = profit - expenses;
+    final revenue = orderRows.fold<int>(0, (s, r) => s + (r['total_amount'] as num).toInt());
+    final grossProfit = orderRows.fold<int>(0, (s, r) => s + (r['gross_profit'] as num).toInt());
+
+    final expenseRows = await db.query('expenses',
+      where: 'store_id = ? AND spent_at >= ? AND spent_at <= ? AND deleted_at IS NULL',
+      whereArgs: [storeId, start, end],
+    );
+    final expenses = expenseRows.fold<int>(0, (s, r) => s + (r['amount'] as num).toInt());
 
     return DashboardSummary(
       revenue: revenue,
-      orderCount: orders.length,
-      grossProfit: profit,
+      orderCount: orderRows.length,
+      grossProfit: grossProfit,
       expenses: expenses,
-      netProfit: netProfit,
+      netProfit: grossProfit - expenses,
     );
   }
 
   Future<List<ProductSalesSummary>> getBestSellingProducts(String storeId, DateRange range) async {
-    final items = await (_db.select(__db.orderItems)
-      ..join([
-        innerJoin(__db.orders, __db.orderItems.orderId.equalsExpressions(__db.orders.id)),
-      ])
-      ..where(__db.orders.storeId.equals(storeId))
-      ..where(__db.orders.createdAt.isBetweenValues(range.start, range.end))
-      ..where(__db.orders.status.isNotIn(['draft', 'cancelled', 'refunded']))
-    ).get();
+    final db = await _d;
+    final rows = await db.rawQuery('''
+      SELECT oi.product_name, SUM(oi.quantity) as total_qty, SUM(oi.line_total) as total_revenue
+      FROM order_items oi
+      INNER JOIN orders o ON oi.order_id = o.id
+      WHERE o.store_id = ? AND o.created_at >= ? AND o.created_at <= ?
+        AND o.status NOT IN ('draft', 'cancelled', 'refunded')
+      GROUP BY oi.product_name
+      ORDER BY total_qty DESC
+    ''', [storeId, range.start, range.end]);
 
-    final productMap = <String, ProductSalesSummary>{};
-    for (final row in items) {
-      final item = row.readTable(__db.orderItems);
-      final key = item.productId ?? item.productName;
-      productMap.update(key, (existing) {
-        return ProductSalesSummary(
-          productName: item.productName,
-          quantity: existing.quantity + item.quantity,
-          revenue: existing.revenue + item.lineTotal,
-        );
-      }, ifAbsent: () => ProductSalesSummary(
-        productName: item.productName,
-        quantity: item.quantity,
-        revenue: item.lineTotal,
-      ));
-    }
-
-    return productMap.values.toList()
-      ..sort((a, b) => b.quantity.compareTo(a.quantity));
+    return rows.map((r) => ProductSalesSummary(
+      productName: r['product_name'] as String,
+      quantity: (r['total_qty'] as num).toInt(),
+      revenue: (r['total_revenue'] as num).toInt(),
+    )).toList();
   }
 }
 

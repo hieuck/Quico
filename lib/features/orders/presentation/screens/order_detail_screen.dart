@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/database/app_database.dart' as db;
+import '../../../../core/database/app_database.dart' ;
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../../shared/widgets/confirm_dialog.dart';
@@ -10,7 +10,7 @@ import '../../domain/order.dart';
 import '../../../../l10n/l10n_extension.dart';
 
 final _orderProvider = FutureProvider.autoDispose.family<Order?, String>((ref, id) async {
-  final database = ref.read(db.appDatabaseProvider);
+  final database = ref.read(appDatabaseProvider);
   final repo = OrderRepository(db);
   return repo.getOrderById(id);
 });
@@ -60,7 +60,7 @@ class OrderDetailScreen extends ConsumerWidget {
                     onPressed: () async {
                       final confirmed = await ConfirmDialog.show(context, title: context.l10n.cancelOrderConfirm, message: context.l10n.cancelOrderBody, confirmLabel: context.l10n.cancelOrder, destructive: true);
                       if (confirmed) {
-                        final database = ref.read(db.appDatabaseProvider);
+                        final database = ref.read(appDatabaseProvider);
                         await OrderRepository(db).cancelOrder(orderId);
                         if (context.mounted) context.pop();
                       }

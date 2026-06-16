@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/utils/currency_formatter.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../l10n/l10n_extension.dart';
 
 final _expenseListProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
-  final database = ref.read(db.appDatabaseProvider);
+  final database = ref.read(appDatabaseProvider);
   final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   if (settings == null) return [];
   return await (database.select(database.expenses)
     ..where((t) => t.storeId.equals(settings.value))
     ..where((t) => t.deletedAt.isNull())
-    ..orderBy([(t) => db.OrderingTerm(expression: t.spentAt, mode: db.OrderingMode.desc)])
+    ..orderBy([(t) => OrderingTerm(expression: t.spentAt, mode: OrderingMode.desc)])
   ).get();
 });
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_database.dart' ;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../../../l10n/l10n_extension.dart';
@@ -29,17 +29,17 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    final database = ref.read(db.appDatabaseProvider);
+    final database = ref.read(appDatabaseProvider);
     final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings == null) return;
 
     final now = DateTimeUtils.nowMillis();
-    database.into(database.customers).insert(db.CustomersCompanion.insert(
+    database.into(database.customers).insert(CustomersCompanion.insert(
       id: IdGenerator.newId(),
       storeId: settings.value,
       name: _nameCtrl.text.trim(),
-      phone: _phoneCtrl.text.trim().isNotEmpty ? db.Value(_phoneCtrl.text.trim()) : Value.absent(),
-      note: _noteCtrl.text.trim().isNotEmpty ? db.Value(_noteCtrl.text.trim()) : Value.absent(),
+      phone: _phoneCtrl.text.trim().isNotEmpty ? Value(_phoneCtrl.text.trim()) : Value.absent(),
+      note: _noteCtrl.text.trim().isNotEmpty ? Value(_noteCtrl.text.trim()) : Value.absent(),
       createdAt: now,
       updatedAt: now,
     ));

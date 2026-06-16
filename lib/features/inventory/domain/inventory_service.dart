@@ -1,12 +1,14 @@
-import 'package:drift/drift.dart';
-import '../../../core/database/app_database.dart' as db;
+import 'package:sqflite/sqflite.dart';
+import '../../../core/database/app_database.dart';
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 
 class InventoryService {
-  final db.AppDatabase _db;
+  final AppDatabase _db;
 
   InventoryService(this._db);
+
+  Future<Database> get _d => _db.database;
 
   Future<void> applySaleMovement({
     required String storeId,
@@ -14,26 +16,27 @@ class InventoryService {
     required String orderId,
     required int quantitySold,
   }) async {
+    final db = await _d;
     final now = DateTimeUtils.nowMillis();
-    final product = await (_db.select(_db.products)..where((t) => t.id.equals(productId))).getSingleOrNull();
-    if (product == null) return;
+    final rows = await db.query('products', where: 'id = ?', whereArgs: [productId]);
+    if (rows.isEmpty) return;
+    final currentStock = (rows.first['stock_quantity'] as num).toInt();
+    final newStock = currentStock - quantitySold;
 
-    final newStock = product.stockQuantity - quantitySold;
-    _db.into(_db.inventoryMovements).insert(db.InventoryMovementsCompanion.insert(
-      id: IdGenerator.newId(),
-      storeId: storeId,
-      productId: productId,
-      type: 'sale',
-      quantityDelta: -quantitySold,
-      quantityAfter: newStock,
-      referenceType: const db.Value('order'),
-      referenceId: db.Value(orderId),
-      createdAt: now,
-    ));
+    await db.insert('inventory_movements', {
+      'id': IdGenerator.newId(),
+      'store_id': storeId,
+      'product_id': productId,
+      'type': 'sale',
+      'quantity_delta': -quantitySold,
+      'quantity_after': newStock,
+      'reference_type': 'order',
+      'reference_id': orderId,
+      'created_at': now,
+    });
 
-    await (_db.update(_db.products)..where((t) => t.id.equals(productId))).write(
-      db.ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
-    );
+    await db.update('products', {'stock_quantity': newStock, 'updated_at': now},
+        where: 'id = ?', whereArgs: [productId]);
   }
 
   Future<void> applyRefundMovement({
@@ -42,26 +45,27 @@ class InventoryService {
     required String orderId,
     required int quantityRestored,
   }) async {
+    final db = await _d;
     final now = DateTimeUtils.nowMillis();
-    final product = await (_db.select(_db.products)..where((t) => t.id.equals(productId))).getSingleOrNull();
-    if (product == null) return;
+    final rows = await db.query('products', where: 'id = ?', whereArgs: [productId]);
+    if (rows.isEmpty) return;
+    final currentStock = (rows.first['stock_quantity'] as num).toInt();
+    final newStock = currentStock + quantityRestored;
 
-    final newStock = product.stockQuantity + quantityRestored;
-    _db.into(_db.inventoryMovements).insert(db.InventoryMovementsCompanion.insert(
-      id: IdGenerator.newId(),
-      storeId: storeId,
-      productId: productId,
-      type: 'refund',
-      quantityDelta: quantityRestored,
-      quantityAfter: newStock,
-      referenceType: const db.Value('order'),
-      referenceId: db.Value(orderId),
-      createdAt: now,
-    ));
+    await db.insert('inventory_movements', {
+      'id': IdGenerator.newId(),
+      'store_id': storeId,
+      'product_id': productId,
+      'type': 'refund',
+      'quantity_delta': quantityRestored,
+      'quantity_after': newStock,
+      'reference_type': 'order',
+      'reference_id': orderId,
+      'created_at': now,
+    });
 
-    await (_db.update(_db.products)..where((t) => t.id.equals(productId))).write(
-      db.ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
-    );
+    await db.update('products', {'stock_quantity': newStock, 'updated_at': now},
+        where: 'id = ?', whereArgs: [productId]);
   }
 
   Future<void> adjustStock({
@@ -70,31 +74,34 @@ class InventoryService {
     required int newQuantity,
     required String note,
   }) async {
+    final db = await _d;
     final now = DateTimeUtils.nowMillis();
-    final product = await (_db.select(_db.products)..where((t) => t.id.equals(productId))).getSingleOrNull();
-    if (product == null) return;
+    final rows = await db.query('products', where: 'id = ?', whereArgs: [productId]);
+    if (rows.isEmpty) return;
+    final currentStock = (rows.first['stock_quantity'] as num).toInt();
+    final delta = newQuantity - currentStock;
 
-    final delta = newQuantity - product.stockQuantity;
-    _db.into(_db.inventoryMovements).insert(db.InventoryMovementsCompanion.insert(
-      id: IdGenerator.newId(),
-      storeId: storeId,
-      productId: productId,
-      type: 'correction',
-      quantityDelta: delta,
-      quantityAfter: newQuantity,
-      note: db.Value(note),
-      createdAt: now,
-    ));
+    await db.insert('inventory_movements', {
+      'id': IdGenerator.newId(),
+      'store_id': storeId,
+      'product_id': productId,
+      'type': 'correction',
+      'quantity_delta': delta,
+      'quantity_after': newQuantity,
+      'note': note,
+      'created_at': now,
+    });
 
-    await (_db.update(_db.products)..where((t) => t.id.equals(productId))).write(
-      db.ProductsCompanion.custom({'stock_quantity': newQuantity, 'updated_at': now}),
-    );
+    await db.update('products', {'stock_quantity': newQuantity, 'updated_at': now},
+        where: 'id = ?', whereArgs: [productId]);
   }
 
-  Future<List<dynamic>> listMovements(String productId) async {
-    return await (_db.select(_db.inventoryMovements)
-      ..where((t) => t.productId.equals(productId))
-      ..orderBy([(t) => db.OrderingTerm(expression: t.createdAt, mode: db.OrderingMode.desc)])
-    ).get();
+  Future<List<Map<String, dynamic>>> listMovements(String productId) async {
+    final db = await _d;
+    return await db.query('inventory_movements',
+      where: 'product_id = ?',
+      whereArgs: [productId],
+      orderBy: 'created_at DESC',
+    );
   }
 }
