@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import '../../../core/database/app_database.dart' as db;
+import '../../../core/database/app_db.dart' as db;
 import '../../../core/utils/date_time_utils.dart';
 
 class ReportRepository {
@@ -17,7 +17,7 @@ class ReportRepository {
   }
 
   Future<DashboardSummary> _getSummary(String storeId, DateRange range) async {
-    final orders = await (_database.select(_database.orders)
+    final orders = await (_db.select(__db.orders)
       ..where((t) => t.storeId.equals(storeId))
       ..where((t) => t.createdAt.isBetweenValues(range.start, range.end))
       ..where((t) => t.status.isNotIn(['draft', 'cancelled', 'refunded']))
@@ -25,7 +25,7 @@ class ReportRepository {
 
     final revenue = orders.fold<int>(0, (s, o) => s + o.totalAmount);
     final profit = orders.fold<int>(0, (s, o) => s + o.grossProfit);
-    final expenseRows = await (_database.select(_database.expenses)
+    final expenseRows = await (_db.select(_db.expenses)
       ..where((t) => t.storeId.equals(storeId))
       ..where((t) => t.spentAt.isBetweenValues(range.start, range.end))
       ..where((t) => t.deletedAt.isNull())
@@ -43,18 +43,18 @@ class ReportRepository {
   }
 
   Future<List<ProductSalesSummary>> getBestSellingProducts(String storeId, DateRange range) async {
-    final items = await (_database.select(_database.orderItems)
+    final items = await (_db.select(__db.orderItems)
       ..join([
-        innerJoin(_database.orders, _database.orderItems.orderId.equalsExpressions(_database.orders.id)),
+        innerJoin(__db.orders, __db.orderItems.orderId.equalsExpressions(__db.orders.id)),
       ])
-      ..where(_database.orders.storeId.equals(storeId))
-      ..where(_database.orders.createdAt.isBetweenValues(range.start, range.end))
-      ..where(_database.orders.status.isNotIn(['draft', 'cancelled', 'refunded']))
+      ..where(__db.orders.storeId.equals(storeId))
+      ..where(__db.orders.createdAt.isBetweenValues(range.start, range.end))
+      ..where(__db.orders.status.isNotIn(['draft', 'cancelled', 'refunded']))
     ).get();
 
     final productMap = <String, ProductSalesSummary>{};
     for (final row in items) {
-      final item = row.readTable(_database.orderItems);
+      final item = row.readTable(__db.orderItems);
       final key = item.productId ?? item.productName;
       productMap.update(key, (existing) {
         return ProductSalesSummary(

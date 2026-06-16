@@ -53,7 +53,10 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                     final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
                     if (settings != null) {
                       await (database.update(database.stores)..where((t) => t.id.equals(settings.value))).write(
-                        db.StoresCompanion.custom({'name': _nameCtrl.text.trim(), 'updated_at': DateTime.now().millisecondsSinceEpoch}),
+                        db.StoresCompanion(
+                          name: db.Value(_nameCtrl.text.trim()),
+                          updatedAt: db.Value(DateTime.now().millisecondsSinceEpoch),
+                        ),
                       );
                       if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved')));
                     }

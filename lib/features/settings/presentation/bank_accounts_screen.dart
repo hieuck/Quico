@@ -35,7 +35,7 @@ class _BankAccountsScreenState extends ConsumerState<BankAccountsScreen> {
     if (settings == null) return;
 
     final now = DateTimeUtils.nowMillis();
-    database.into(database.bankAccounts).insert(BankAccountsCompanion.insert(
+    database.into(database.bankAccounts).insert(db.BankAccountsCompanion.insert(
       id: IdGenerator.newId(),
       storeId: settings.value,
       bankCode: _bankCodeCtrl.text.trim(),
