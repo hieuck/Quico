@@ -33,7 +33,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     final amount = int.tryParse(_amountCtrl.text);
     if (amount == null || amount <= 0) return;
 
-    final db = ref.read(appDatabaseProvider);
+    final database = ref.read(db.appDatabaseProvider);
     final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings == null) return;
 
@@ -43,7 +43,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       storeId: settings.value,
       category: _category,
       amount: amount,
-      note: _noteCtrl.text.trim().isNotEmpty ? Value(_noteCtrl.text.trim()) : Value.absent(),
+      note: _noteCtrl.text.trim().isNotEmpty ? db.Value(_noteCtrl.text.trim()) : Value.absent(),
       spentAt: now,
       createdAt: now,
       updatedAt: now,

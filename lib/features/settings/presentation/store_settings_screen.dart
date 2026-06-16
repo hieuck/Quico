@@ -21,7 +21,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
   }
 
   Future<void> _load() async {
-    final db = ref.read(appDatabaseProvider);
+    final database = ref.read(db.appDatabaseProvider);
     final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings != null) {
       final store = await (db.select(db.stores)..where((t) => t.id.equals(settings.value))).getSingleOrNull();
@@ -49,7 +49,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                 const SizedBox(height: 24),
                 SizedBox(width: double.infinity, child: ElevatedButton(
                   onPressed: () async {
-                    final db = ref.read(appDatabaseProvider);
+                    final database = ref.read(db.appDatabaseProvider);
                     final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
                     if (settings != null) {
                       await (db.update(db.stores)..where((t) => t.id.equals(settings.value))).write(

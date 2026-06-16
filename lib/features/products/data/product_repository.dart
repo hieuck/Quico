@@ -14,7 +14,7 @@ class ProductRepository {
     final rows = await (_db.select(_db.products)
       ..where((t) => t.storeId.equals(storeId))
       ..where((t) => t.deletedAt.isNull())
-      ..orderBy([(t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)])
+      ..orderBy([(t) => db.OrderingTerm(expression: t.name, mode: db.OrderingMode.asc)])
     ).get();
     return rows.map(_toDomain).toList();
   }
@@ -72,9 +72,9 @@ class ProductRepository {
       salePrice: input.salePrice,
       stockQuantity: input.stockQuantity,
       lowStockThreshold: input.lowStockThreshold,
-      imagePath: input.imagePath != null ? Value(input.imagePath!) : Value.absent(),
-      sku: input.sku != null ? Value(input.sku!) : Value.absent(),
-      barcode: input.barcode != null ? Value(input.barcode!) : Value.absent(),
+      imagePath: input.imagePath != null ? db.Value(input.imagePath!) : Value.absent(),
+      sku: input.sku != null ? db.Value(input.sku!) : Value.absent(),
+      barcode: input.barcode != null ? db.Value(input.barcode!) : Value.absent(),
       createdAt: now,
       updatedAt: now,
     ));

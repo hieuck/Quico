@@ -30,7 +30,7 @@ class _BankAccountsScreenState extends ConsumerState<BankAccountsScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    final db = ref.read(appDatabaseProvider);
+    final database = ref.read(db.appDatabaseProvider);
     final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings == null) return;
 

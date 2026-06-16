@@ -20,7 +20,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   Future<void> _exportBackup() async {
     setState(() => _loading = true);
     try {
-      final db = ref.read(appDatabaseProvider);
+      final database = ref.read(db.appDatabaseProvider);
       final stores = await db.select(db.stores).get();
       final products = await db.select(db.products).get();
       final customers = await db.select(db.customers).get();

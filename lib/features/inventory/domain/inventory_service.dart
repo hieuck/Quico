@@ -26,8 +26,8 @@ class InventoryService {
       type: 'sale',
       quantityDelta: -quantitySold,
       quantityAfter: newStock,
-      referenceType: const Value('order'),
-      referenceId: Value(orderId),
+      referenceType: const db.Value('order'),
+      referenceId: db.Value(orderId),
       createdAt: now,
     ));
 
@@ -54,8 +54,8 @@ class InventoryService {
       type: 'refund',
       quantityDelta: quantityRestored,
       quantityAfter: newStock,
-      referenceType: const Value('order'),
-      referenceId: Value(orderId),
+      referenceType: const db.Value('order'),
+      referenceId: db.Value(orderId),
       createdAt: now,
     ));
 
@@ -82,7 +82,7 @@ class InventoryService {
       type: 'correction',
       quantityDelta: delta,
       quantityAfter: newQuantity,
-      note: Value(note),
+      note: db.Value(note),
       createdAt: now,
     ));
 
@@ -94,7 +94,7 @@ class InventoryService {
   Future<List<InventoryMovementRow>> listMovements(String productId) async {
     return await (_db.select(_db.inventoryMovements)
       ..where((t) => t.productId.equals(productId))
-      ..orderBy([(t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)])
+      ..orderBy([(t) => db.OrderingTerm(expression: t.createdAt, mode: db.OrderingMode.desc)])
     ).get();
   }
 }

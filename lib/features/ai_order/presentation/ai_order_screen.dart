@@ -40,7 +40,7 @@ class _AiOrderScreenState extends ConsumerState<AiOrderScreen> with SingleTicker
     setState(() => _parsing = true);
     try {
       final draft = await _parser.parse(_textCtrl.text.trim());
-      final db = ref.read(appDatabaseProvider);
+      final database = ref.read(db.appDatabaseProvider);
       final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
       if (settings != null) {
         final repo = ProductRepository(db);

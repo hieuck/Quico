@@ -10,7 +10,7 @@ import '../../domain/order.dart';
 import '../../../../l10n/l10n_extension.dart';
 
 final _orderProvider = FutureProvider.autoDispose.family<Order?, String>((ref, id) async {
-  final db = ref.read(appDatabaseProvider);
+  final database = ref.read(db.appDatabaseProvider);
   final repo = OrderRepository(db);
   return repo.getOrderById(id);
 });
@@ -60,7 +60,7 @@ class OrderDetailScreen extends ConsumerWidget {
                     onPressed: () async {
                       final confirmed = await ConfirmDialog.show(context, title: context.l10n.cancelOrderConfirm, message: context.l10n.cancelOrderBody, confirmLabel: context.l10n.cancelOrder, destructive: true);
                       if (confirmed) {
-                        final db = ref.read(appDatabaseProvider);
+                        final database = ref.read(db.appDatabaseProvider);
                         await OrderRepository(db).cancelOrder(orderId);
                         if (context.mounted) context.pop();
                       }

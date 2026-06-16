@@ -71,14 +71,14 @@ class _StoreSetupScreenState extends ConsumerState<StoreSetupScreen> {
     final name = ref.read(_storeNameProvider).trim();
     if (name.isEmpty) return;
 
-    final db = ref.read(appDatabaseProvider);
+    final database = ref.read(db.appDatabaseProvider);
     final now = DateTimeUtils.nowMillis();
     final storeId = IdGenerator.newId();
 
     db.into(db.stores).insert(StoresCompanion.insert(
       id: storeId,
       name: name,
-      businessType: _businessType.isNotEmpty ? Value(_businessType) : Value.absent(),
+      businessType: _businessType.isNotEmpty ? db.Value(_businessType) : Value.absent(),
       currency: 'VND',
       createdAt: now,
       updatedAt: now,

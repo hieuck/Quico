@@ -7,13 +7,13 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../../l10n/l10n_extension.dart';
 
 final _expenseListProvider = FutureProvider.autoDispose<List<ExpenseRow>>((ref) async {
-  final db = ref.read(appDatabaseProvider);
+  final database = ref.read(db.appDatabaseProvider);
   final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   if (settings == null) return [];
   return await (db.select(db.expenses)
     ..where((t) => t.storeId.equals(settings.value))
     ..where((t) => t.deletedAt.isNull())
-    ..orderBy([(t) => OrderingTerm(expression: t.spentAt, mode: OrderingMode.desc)])
+    ..orderBy([(t) => db.OrderingTerm(expression: t.spentAt, mode: db.OrderingMode.desc)])
   ).get();
 });
 

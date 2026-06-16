@@ -29,7 +29,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    final db = ref.read(appDatabaseProvider);
+    final database = ref.read(db.appDatabaseProvider);
     final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings == null) return;
 
@@ -38,8 +38,8 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
       id: IdGenerator.newId(),
       storeId: settings.value,
       name: _nameCtrl.text.trim(),
-      phone: _phoneCtrl.text.trim().isNotEmpty ? Value(_phoneCtrl.text.trim()) : Value.absent(),
-      note: _noteCtrl.text.trim().isNotEmpty ? Value(_noteCtrl.text.trim()) : Value.absent(),
+      phone: _phoneCtrl.text.trim().isNotEmpty ? db.Value(_phoneCtrl.text.trim()) : Value.absent(),
+      note: _noteCtrl.text.trim().isNotEmpty ? db.Value(_noteCtrl.text.trim()) : Value.absent(),
       createdAt: now,
       updatedAt: now,
     ));

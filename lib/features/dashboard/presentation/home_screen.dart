@@ -7,7 +7,7 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../l10n/l10n_extension.dart';
 
 final _activeStoreProvider = FutureProvider((ref) async {
-  final db = ref.read(appDatabaseProvider);
+  final database = ref.read(db.appDatabaseProvider);
   final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   if (settings == null) return null;
   return await (db.select(db.stores)..where((t) => t.id.equals(settings.value))).getSingleOrNull();

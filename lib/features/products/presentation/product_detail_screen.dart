@@ -11,7 +11,7 @@ import '../domain/product.dart';
 import '../../../l10n/l10n_extension.dart';
 
 final _productProvider = FutureProvider.autoDispose.family<Product?, String>((ref, id) async {
-  final db = ref.read(appDatabaseProvider);
+  final database = ref.read(db.appDatabaseProvider);
   final repo = ProductRepository(db);
   return repo.getProductById(id);
 });
@@ -35,7 +35,7 @@ class ProductDetailScreen extends ConsumerWidget {
               } else if (v == 'deactivate') {
                 final confirmed = await ConfirmDialog.show(context, title: context.l10n.deactivate, message: 'San pham se an khoi POS.', confirmLabel: 'Ngung ban', destructive: true);
                 if (confirmed) {
-                  final db = ref.read(appDatabaseProvider);
+                  final database = ref.read(db.appDatabaseProvider);
                   await ProductRepository(db).deactivateProduct(productId);
                   if (context.mounted) context.pop();
                 }

@@ -8,7 +8,7 @@ import '../../../shared/widgets/loading_state.dart';
 import '../../../l10n/l10n_extension.dart';
 
 final _receiptDataProvider = FutureProvider.autoDispose.family<ReceiptData?, String>((ref, orderId) async {
-  final db = ref.read(appDatabaseProvider);
+  final database = ref.read(db.appDatabaseProvider);
   final order = await (db.select(db.orders)..where((t) => t.id.equals(orderId))).getSingleOrNull();
   if (order == null) return null;
   final items = await (db.select(db.orderItems)..where((t) => t.orderId.equals(orderId))).get();

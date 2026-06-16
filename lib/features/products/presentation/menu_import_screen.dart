@@ -43,7 +43,7 @@ class _MenuImportScreenState extends ConsumerState<MenuImportScreen> {
   }
 
   Future<void> _saveSelected() async {
-    final db = ref.read(appDatabaseProvider);
+    final database = ref.read(db.appDatabaseProvider);
     final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings == null) return;
 

@@ -40,11 +40,11 @@ class OrderRepository {
       _db.into(_db.orders).insert(OrdersCompanion.insert(
         id: orderId,
         storeId: input.storeId,
-        customerId: input.customerId != null ? Value(input.customerId!) : Value.absent(),
+        customerId: input.customerId != null ? db.Value(input.customerId!) : Value.absent(),
         orderCode: orderCode,
         status: const Constant('paid'),
         paymentStatus: input.paymentStatus as String,
-        paymentMethod: input.paymentMethod != null ? Value(input.paymentMethod!) : Value.absent(),
+        paymentMethod: input.paymentMethod != null ? db.Value(input.paymentMethod!) : Value.absent(),
         subtotal: subtotal,
         discountAmount: input.discountAmount,
         totalAmount: totalAmount,
@@ -52,9 +52,9 @@ class OrderRepository {
         grossProfit: grossProfit,
         paidAmount: input.paidAmount,
         source: input.source,
-        originalInput: input.originalInput != null ? Value(input.originalInput!) : Value.absent(),
-        note: input.note != null ? Value(input.note!) : Value.absent(),
-        completedAt: Value(now),
+        originalInput: input.originalInput != null ? db.Value(input.originalInput!) : Value.absent(),
+        note: input.note != null ? db.Value(input.note!) : Value.absent(),
+        completedAt: db.Value(now),
         createdAt: now,
         updatedAt: now,
       ));
@@ -65,7 +65,7 @@ class OrderRepository {
         _db.into(_db.orderItems).insert(OrderItemsCompanion.insert(
           id: IdGenerator.newId(),
           orderId: orderId,
-          productId: item.productId != null ? Value(item.productId!) : Value.absent(),
+          productId: item.productId != null ? db.Value(item.productId!) : Value.absent(),
           productName: item.productName,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
@@ -73,7 +73,7 @@ class OrderRepository {
           discountAmount: item.discountAmount,
           lineTotal: lineTotal,
           lineProfit: lineProfit,
-          note: item.note != null ? Value(item.note!) : Value.absent(),
+          note: item.note != null ? db.Value(item.note!) : Value.absent(),
           createdAt: now,
           updatedAt: now,
         ));
@@ -86,8 +86,8 @@ class OrderRepository {
             type: 'sale',
             quantityDelta: -item.quantity,
             quantityAfter: 0,
-            referenceType: const Value('order'),
-            referenceId: Value(orderId),
+            referenceType: const db.Value('order'),
+            referenceId: db.Value(orderId),
             createdAt: now,
           ));
 
@@ -169,7 +169,7 @@ class OrderRepository {
   }
 
   Future<List<Order>> listOrders(OrderFilter filter) async {
-    var query = _db.select(_db.orders)..orderBy([(t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)]);
+    var query = _db.select(_db.orders)..orderBy([(t) => db.OrderingTerm(expression: t.createdAt, mode: db.OrderingMode.desc)]);
     if (filter.status != null) {
       query.where((t) => t.status.equals(filter.status!));
     }

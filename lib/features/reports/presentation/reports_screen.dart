@@ -9,7 +9,7 @@ import '../../../core/utils/date_time_utils.dart';
 import '../../../l10n/l10n_extension.dart';
 
 final _reportProvider = FutureProvider.autoDispose((ref) async {
-  final db = ref.read(appDatabaseProvider);
+  final database = ref.read(db.appDatabaseProvider);
   final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   if (settings == null) return null;
   final repo = ReportRepository(db);

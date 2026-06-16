@@ -159,7 +159,7 @@ class AiReviewScreen extends ConsumerWidget {
     if (!confirmed || !context.mounted) return;
 
     try {
-      final db = ref.read(appDatabaseProvider);
+      final database = ref.read(db.appDatabaseProvider);
       final repo = OrderRepository(db);
       final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
       if (settings == null) return;
