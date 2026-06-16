@@ -770,4 +770,29 @@ class AiParseLogsCompanion extends UpdateCompanion<dynamic>(
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) => {};
+
+
+class _$AppDatabase extends GeneratedDatabase {
+  _$AppDatabase(QueryExecutor e) : super(e);
+
+  late final Stores stores = Stores();
+  late final Products products = Products();
+  late final Customers customers = Customers();
+  late final Orders orders = Orders();
+  late final OrderItems orderItems = OrderItems();
+  late final InventoryMovements inventoryMovements = InventoryMovements();
+  late final Expenses expenses = Expenses();
+  late final BankAccounts bankAccounts = BankAccounts();
+  late final AppSettings appSettings = AppSettings();
+  late final AiParseLogs aiParseLogs = AiParseLogs();
+
+  @override
+  List<TableInfo<Table, dynamic>> get allTables => [
+    stores, products, customers, orders, orderItems,
+    inventoryMovements, expenses, bankAccounts, appSettings, aiParseLogs,
+  ];
+
+  @override
+  int get schemaVersion => 1;
+}
 }
