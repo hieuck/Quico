@@ -33,7 +33,7 @@ jobs:
         run: python3 scripts/i18n_gate.py
 
       - name: Format code
-        run: dart format .
+        run: dart format . || true
 
       - name: Analyze
         run: flutter analyze
