@@ -10,7 +10,13 @@ import '../../orders/domain/order_calculation_service.dart';
 import '../../orders/data/order_repository.dart';
 import '../../../l10n/l10n_extension.dart';
 
-final _draftProvider = StateProvider<ParsedOrderDraft?>((ref) => null);
+final _draftProvider = NotifierProvider<_ReviewDraftNotifier, ParsedOrderDraft?>(() => _ReviewDraftNotifier());
+
+class _ReviewDraftNotifier extends Notifier<ParsedOrderDraft?> {
+  @override
+  ParsedOrderDraft? build() => null;
+  void update(ParsedOrderDraft? draft) => state = draft;
+}
 
 class AiReviewScreen extends ConsumerWidget {
   const AiReviewScreen({super.key});

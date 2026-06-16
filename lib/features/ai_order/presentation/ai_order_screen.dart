@@ -9,7 +9,13 @@ import '../../../core/ai/parser/parsed_order_models.dart';
 import '../../products/data/product_repository.dart';
 import 'ai_review_screen.dart';
 
-final _parsedDraftProvider = StateProvider<ParsedOrderDraft?>((ref) => null);
+final _parsedDraftProvider = NotifierProvider<_ParsedDraftNotifier, ParsedOrderDraft?>(() => _ParsedDraftNotifier());
+
+class _ParsedDraftNotifier extends Notifier<ParsedOrderDraft?> {
+  @override
+  ParsedOrderDraft? build() => null;
+  void update(ParsedOrderDraft? draft) => state = draft;
+}
 
 class AiOrderScreen extends ConsumerStatefulWidget {
   const AiOrderScreen({super.key});
@@ -63,13 +69,13 @@ class _AiOrderScreenState extends ConsumerState<AiOrderScreen> with SingleTicker
             productMatch: result.match,
           ));
         }
-        ref.read(_parsedDraftProvider.notifier).state = ParsedOrderDraft(
+        ref.read(_parsedDraftProvider.notifier).update(ParsedOrderDraft(
           originalInput: draft.originalInput,
           source: source,
           customerHint: draft.customerHint,
           items: matchedItems,
           note: draft.note,
-        );
+        ));
       }
     } catch (_) {}
     setState(() => _parsing = false);
