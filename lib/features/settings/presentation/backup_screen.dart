@@ -21,14 +21,14 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     setState(() => _loading = true);
     try {
       final database = ref.read(db.appDatabaseProvider);
-      final stores = await db.select(db.stores).get();
-      final products = await db.select(db.products).get();
-      final customers = await db.select(db.customers).get();
-      final orders = await db.select(db.orders).get();
-      final items = await db.select(db.orderItems).get();
-      final movements = await db.select(db.inventoryMovements).get();
-      final expenses = await db.select(db.expenses).get();
-      final accounts = await db.select(db.bankAccounts).get();
+      final stores = await database.select(database.stores).get();
+      final products = await database.select(database.products).get();
+      final customers = await database.select(database.customers).get();
+      final orders = await database.select(database.orders).get();
+      final items = await database.select(database.orderItems).get();
+      final movements = await database.select(database.inventoryMovements).get();
+      final expenses = await database.select(database.expenses).get();
+      final accounts = await database.select(database.bankAccounts).get();
 
       final backup = {
         'app': context.l10n.appName,
