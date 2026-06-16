@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import '../../../core/database/app_db.dart' as db;
+import '../../../core/database/app_database.dart' as db;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../domain/order.dart';
@@ -17,7 +17,7 @@ class OrderRepository {
     if (row != null) {
       nextSeq = int.tryParse(row.value) ?? 1;
     }
-    await (settings..where((t) => t.key.equals(key))).upsert(AppSettingsCompanion.insert(
+    await (settings..where((t) => t.key.equals(key))).upsert(db.AppSettingsCompanion.insert(
       key: key,
       value: (nextSeq + 1).toString(),
       updatedAt: DateTimeUtils.nowMillis(),
@@ -37,7 +37,7 @@ class OrderRepository {
       final costAmount = items.fold(0, (s, i) => s + (i.quantity * i.costPrice));
       final grossProfit = totalAmount - costAmount;
 
-      _db.into(_db.orders).insert(OrdersCompanion.insert(
+      _db.into(_db.orders).insert(db.OrdersCompanion.insert(
         id: orderId,
         storeId: input.storeId,
         customerId: input.customerId != null ? db.Value(input.customerId!) : Value.absent(),
@@ -62,7 +62,7 @@ class OrderRepository {
       for (final item in items) {
         final lineTotal = (item.quantity * item.unitPrice) - item.discountAmount;
         final lineProfit = lineTotal - (item.quantity * item.costPrice);
-        _db.into(_db.orderItems).insert(OrderItemsCompanion.insert(
+        _db.into(_db.orderItems).insert(db.OrderItemsCompanion.insert(
           id: IdGenerator.newId(),
           orderId: orderId,
           productId: item.productId != null ? db.Value(item.productId!) : Value.absent(),
@@ -79,7 +79,7 @@ class OrderRepository {
         ));
 
         if (item.productId != null) {
-          _db.into(_db.inventoryMovements).insert(InventoryMovementsCompanion.insert(
+          _db.into(_db.inventoryMovements).insert(db.InventoryMovementsCompanion.insert(
             id: IdGenerator.newId(),
             storeId: input.storeId,
             productId: item.productId!,
@@ -95,7 +95,7 @@ class OrderRepository {
           if (product != null) {
             final newStock = product.stockQuantity - item.quantity;
             await (_db.update(_db.products)..where((t) => t.id.equals(item.productId!))).write(
-              ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
+              db.ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
             );
           }
         }
@@ -108,7 +108,7 @@ class OrderRepository {
         ).get();
         final totalSpent = customerOrders.fold(0, (s, o) => s + o.totalAmount);
         await (_db.update(_db.customers)..where((t) => t.id.equals(input.customerId!))).write(
-          CustomersCompanion.custom({
+          db.CustomersCompanion.custom({
             'total_orders': customerOrders.length,
             'total_spent': totalSpent,
             'updated_at': now,
@@ -214,7 +214,7 @@ class OrderRepository {
       if (order == null) return;
 
       await (_db.update(_db.orders)..where((t) => t.id.equals(orderId))).write(
-        OrdersCompanion.custom({
+        db.OrdersCompanion.custom({
           'status': 'cancelled',
           'cancelled_at': now,
           'updated_at': now,
@@ -228,7 +228,7 @@ class OrderRepository {
           if (product != null) {
             final newStock = product.stockQuantity + item.quantity;
             await (_db.update(_db.products)..where((t) => t.id.equals(item.productId!))).write(
-              ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
+              db.ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
             );
           }
         }

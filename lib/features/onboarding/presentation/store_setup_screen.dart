@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/utils/validators.dart';
-import '../../../core/database/app_db.dart' as db;
+import '../../../core/database/app_database.dart' as db;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 

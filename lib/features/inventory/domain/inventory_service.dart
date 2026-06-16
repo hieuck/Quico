@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import '../../../core/database/app_db.dart' as db;
+import '../../../core/database/app_database.dart' as db;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 
@@ -19,7 +19,7 @@ class InventoryService {
     if (product == null) return;
 
     final newStock = product.stockQuantity - quantitySold;
-    _db.into(_db.inventoryMovements).insert(InventoryMovementsCompanion.insert(
+    _db.into(_db.inventoryMovements).insert(db.InventoryMovementsCompanion.insert(
       id: IdGenerator.newId(),
       storeId: storeId,
       productId: productId,
@@ -32,7 +32,7 @@ class InventoryService {
     ));
 
     await (_db.update(_db.products)..where((t) => t.id.equals(productId))).write(
-      ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
+      db.ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
     );
   }
 
@@ -47,7 +47,7 @@ class InventoryService {
     if (product == null) return;
 
     final newStock = product.stockQuantity + quantityRestored;
-    _db.into(_db.inventoryMovements).insert(InventoryMovementsCompanion.insert(
+    _db.into(_db.inventoryMovements).insert(db.InventoryMovementsCompanion.insert(
       id: IdGenerator.newId(),
       storeId: storeId,
       productId: productId,
@@ -60,7 +60,7 @@ class InventoryService {
     ));
 
     await (_db.update(_db.products)..where((t) => t.id.equals(productId))).write(
-      ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
+      db.ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
     );
   }
 
@@ -75,7 +75,7 @@ class InventoryService {
     if (product == null) return;
 
     final delta = newQuantity - product.stockQuantity;
-    _db.into(_db.inventoryMovements).insert(InventoryMovementsCompanion.insert(
+    _db.into(_db.inventoryMovements).insert(db.InventoryMovementsCompanion.insert(
       id: IdGenerator.newId(),
       storeId: storeId,
       productId: productId,
@@ -87,7 +87,7 @@ class InventoryService {
     ));
 
     await (_db.update(_db.products)..where((t) => t.id.equals(productId))).write(
-      ProductsCompanion.custom({'stock_quantity': newQuantity, 'updated_at': now}),
+      db.ProductsCompanion.custom({'stock_quantity': newQuantity, 'updated_at': now}),
     );
   }
 

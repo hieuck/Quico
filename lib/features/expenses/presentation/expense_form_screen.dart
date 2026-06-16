@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/database/app_db.dart' as db;
+import '../../../core/database/app_database.dart' as db;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../../../l10n/l10n_extension.dart';
@@ -38,7 +38,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     if (settings == null) return;
 
     final now = DateTimeUtils.nowMillis();
-    database.into(database.expenses).insert(ExpensesCompanion.insert(
+    database.into(database.expenses).insert(db.ExpensesCompanion.insert(
       id: IdGenerator.newId(),
       storeId: settings.value,
       category: _category,

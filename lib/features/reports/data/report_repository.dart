@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import '../../../core/database/app_db.dart' as db;
+import '../../../core/database/app_database.dart' as db;
 import '../../../core/utils/date_time_utils.dart';
 
 class ReportRepository {

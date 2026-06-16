@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/database/app_db.dart' as db;
+import '../../../core/database/app_database.dart' as db;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../../../l10n/l10n_extension.dart';
@@ -34,7 +34,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
     if (settings == null) return;
 
     final now = DateTimeUtils.nowMillis();
-    database.into(database.customers).insert(CustomersCompanion.insert(
+    database.into(database.customers).insert(db.CustomersCompanion.insert(
       id: IdGenerator.newId(),
       storeId: settings.value,
       name: _nameCtrl.text.trim(),

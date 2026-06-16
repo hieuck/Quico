@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import '../../../core/database/app_db.dart' as db;
+import '../../../core/database/app_database.dart' as db;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/text_normalizer.dart';
 import '../../../core/utils/date_time_utils.dart';
@@ -63,7 +63,7 @@ class ProductRepository {
     final normalizedName = TextNormalizer.normalize(input.name);
     final normalizedFull = TextNormalizer.expandAbbreviations(input.name);
 
-    _db.into(_db.products).insert(ProductsCompanion.insert(
+    _db.into(_db.products).insert(db.ProductsCompanion.insert(
       id: id,
       storeId: input.storeId,
       name: input.name,
@@ -80,7 +80,7 @@ class ProductRepository {
     ));
 
     if (input.stockQuantity > 0) {
-      _db.into(_db.inventoryMovements).insert(InventoryMovementsCompanion.insert(
+      _db.into(_db.inventoryMovements).insert(db.InventoryMovementsCompanion.insert(
         id: IdGenerator.newId(),
         storeId: input.storeId,
         productId: id,
@@ -114,7 +114,7 @@ class ProductRepository {
     updates['updated_at'] = now;
 
     await (_db.update(_db.products)..where((t) => t.id.equals(input.id))).write(
-      ProductsCompanion.custom(updates),
+      db.ProductsCompanion.custom(updates),
     );
 
     final updated = await getProductById(input.id);
@@ -128,7 +128,7 @@ class ProductRepository {
   Future<void> softDeleteProduct(String id) async {
     final now = DateTimeUtils.nowMillis();
     await (_db.update(_db.products)..where((t) => t.id.equals(id))).write(
-      ProductsCompanion.custom({'deleted_at': now, 'updated_at': now}),
+      db.ProductsCompanion.custom({'deleted_at': now, 'updated_at': now}),
     );
   }
 
