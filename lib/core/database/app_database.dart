@@ -148,13 +148,13 @@ class QueryBuilder {
 
   Future<dynamic> getSingleOrNull() async {
     final results = await get();
-    return results.isNotEmpty ? Row(results.first) : null;
+    return results.isNotEmpty ? DbRow(results.first) : null;
   }
 }
 
-class Row {
+class DbRow {
   final Map<String, dynamic> _data;
-  Row(this._data);
+  DbRow(this._data);
   dynamic noSuchMethod(Invocation inv) {
     final name = _symbolName(inv.memberName);
     if (_data.containsKey(name)) return _data[name];
