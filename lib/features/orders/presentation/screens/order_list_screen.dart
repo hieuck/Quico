@@ -13,10 +13,28 @@ final _orderListProvider = FutureProvider.autoDispose<List<Order>>((ref) async {
   final database = ref.read(appDatabaseProvider);
   final repo = OrderRepository(database);
   return repo.listOrders(const OrderFilter(limit: 50));
+
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
 });
 
 class OrderListScreen extends ConsumerWidget {
-  const OrderListScreen({super.key});
+  const OrderListScreen({super.key
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
+});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,8 +45,17 @@ class OrderListScreen extends ConsumerWidget {
       body: ordersAsync.when(
         data: (orders) {
           if (orders.isEmpty) {
-            return EmptyState(icon: Icons.receipt, title: context.l10n.noOrders, description: context.l10n.noOrders);
-          }
+            return EmptyState(icon: Icons.receipt, title: 'No orders', description: 'No orders');
+          
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
+}
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: orders.length,
@@ -37,28 +64,127 @@ class OrderListScreen extends ConsumerWidget {
               final order = orders[i];
               return ListTile(
                 title: Text(order.orderCode),
-                subtitle: Text('${_formatTime(order.createdAt)}${order.note != null ? ' . ${order.note}' : ''}'),
+                subtitle: Text('${_formatTime(order.createdAt)
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
+}${order.note != null ? ' . ${order.note
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
+}' : ''
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
+}'),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(CurrencyFormatter.format(order.totalAmount), style: const TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(width: 8),
-                    StatusBadge.paymentStatus(order.paymentStatus),
+                    StatusBadge(label: _paymentStatusLabel(order.paymentStatus), color: StatusBadge.paymentColor(order.paymentStatus)),
                   ],
                 ),
-                onTap: () => context.push('/orders/${order.id}'),
+                onTap: () => context.push('/orders/${order.id
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
+}'),
               );
-            },
+            
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
+},
           );
-        },
+        
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
+},
         error: (_, __) => Center(child: Text(context.l10n.error)),
         loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
+  
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
   }
+}
 
   String _formatTime(int millis) {
     final d = DateTime.fromMillisecondsSinceEpoch(millis);
-    return '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+    return '${d.hour.toString().padLeft(2, '0')
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
+}:${d.minute.toString().padLeft(2, '0')
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
+}';
+  
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
+  }
+}
+
+  String _paymentStatusLabel(String s) {
+    switch (s) {
+      case 'paid': return 'Paid';
+      case 'unpaid': return 'Unpaid';
+      case 'partial': return 'Partial';
+      default: return s;
+    }
   }
 }

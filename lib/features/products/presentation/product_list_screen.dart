@@ -35,7 +35,7 @@ class ProductListScreen extends ConsumerWidget {
       body: productsAsync.when(
         data: (products) {
           if (products.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.inventory_2,
               title: context.l10n.noProducts,
               description: 'Add your first product to start selling.',
