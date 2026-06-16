@@ -11,7 +11,7 @@ import '../../../../l10n/l10n_extension.dart';
 
 final _orderListProvider = FutureProvider.autoDispose<List<Order>>((ref) async {
   final database = ref.read(appDatabaseProvider);
-  final repo = OrderRepository(db);
+  final repo = OrderRepository(database);
   return repo.listOrders(const OrderFilter(limit: 50));
 });
 

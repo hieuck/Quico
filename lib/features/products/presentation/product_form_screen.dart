@@ -41,7 +41,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
   Future<void> _loadProduct() async {
     final database = ref.read(appDatabaseProvider);
-    final repo = ProductRepository(db);
+    final repo = ProductRepository(database);
     final product = await repo.getProductById(widget.productId!);
     if (product != null) {
       _nameCtrl.text = product.name;
@@ -83,7 +83,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
     try {
       final database = ref.read(appDatabaseProvider);
-      final repo = ProductRepository(db);
+      final repo = ProductRepository(database);
       final storeId = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
       if (storeId == null) return;
 

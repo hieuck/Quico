@@ -12,7 +12,7 @@ final _inventoryProvider = FutureProvider.autoDispose<List<Product>>((ref) async
   final database = ref.read(appDatabaseProvider);
   final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   if (settings == null) return [];
-  return ProductRepository(db).listProducts(settings.value);
+  return ProductRepository(database).listProducts(settings.value);
 });
 
 class InventoryScreen extends ConsumerWidget {

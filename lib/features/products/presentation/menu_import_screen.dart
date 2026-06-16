@@ -48,7 +48,7 @@ class _MenuImportScreenState extends ConsumerState<MenuImportScreen> {
     final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings == null) return;
 
-    final repo = ProductRepository(db);
+    final repo = ProductRepository(database);
     final now = DateTimeUtils.nowMillis();
 
     for (final i in _selected) {

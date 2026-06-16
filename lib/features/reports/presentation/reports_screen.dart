@@ -12,7 +12,7 @@ final _reportProvider = FutureProvider.autoDispose((ref) async {
   final database = ref.read(appDatabaseProvider);
   final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   if (settings == null) return null;
-  final repo = ReportRepository(db);
+  final repo = ReportRepository(database);
   final today = await repo.getDashboardSummary(settings.value);
   final bestSelling = await repo.getBestSellingProducts(settings.value, DateTimeUtils.thisMonth());
   return (summary: today, bestSelling: bestSelling);

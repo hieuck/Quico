@@ -12,8 +12,8 @@ import '../../../l10n/l10n_extension.dart';
 
 final _productListProvider = FutureProvider.autoDispose<List<Product>>((ref) async {
   final database = ref.read(appDatabaseProvider);
-  final repo = ProductRepository(db);
-  final storeId = await _getStoreId(db);
+  final repo = ProductRepository(database);
+  final storeId = await _getStoreId(database);
   if (storeId == null) return [];
   return repo.listProducts(storeId);
 });
