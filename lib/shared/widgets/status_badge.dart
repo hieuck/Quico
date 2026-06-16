@@ -6,6 +6,15 @@ class StatusBadge extends StatelessWidget {
 
   const StatusBadge({super.key, required this.label, required this.color});
 
+  factory StatusBadge.paymentStatus(String status) {
+    switch (status) {
+      case 'paid': return StatusBadge(label: 'Paid', color: const Color(0xFF16A34A));
+      case 'unpaid': return StatusBadge(label: 'Unpaid', color: const Color(0xFFD97706));
+      case 'partial': return StatusBadge(label: 'Partial', color: const Color(0xFF3B82F6));
+      default: return StatusBadge(label: status, color: Colors.grey);
+    }
+  }
+
   factory StatusBadge.orderStatus(String status) {
     switch (status) {
       case 'paid': return StatusBadge(label: 'Paid', color: const Color(0xFF16A34A));
