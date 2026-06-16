@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/database/app_database.dart' ;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 
-class StoreSetupScreen extends StatefulWidget {
+class StoreSetupScreen extends ConsumerStatefulWidget {
   const StoreSetupScreen({super.key});
 
   @override
-  State<StoreSetupScreen> createState() => _StoreSetupScreenState();
+  ConsumerConsumerState<StoreSetupScreen> createState() => _StoreSetupScreenState();
 }
 
-class _StoreSetupScreenState extends State<StoreSetupScreen> {
+class _StoreSetupScreenState extends ConsumerState<StoreSetupScreen> {
   final _formKey = GlobalKey<FormState>();
   String _storeName = '';
   String _businessType = '';
@@ -64,7 +65,7 @@ class _StoreSetupScreenState extends State<StoreSetupScreen> {
     );
   }
 
-  void _createStore() {
+  Future<void> _createStore() async {
     if (!_formKey.currentState!.validate()) return;
     final name = _storeName.trim();
     if (name.isEmpty) return;

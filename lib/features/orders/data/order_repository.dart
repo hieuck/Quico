@@ -17,7 +17,7 @@ class OrderRepository {
     final rows = await db.query('app_settings', where: 'key = ?', whereArgs: [key]);
     int nextSeq = 1;
     if (rows.isNotEmpty) {
-      nextSeq = int.tryParse(rows.first['value']) ?? 1;
+      nextSeq = int.tryParse(rows.first['value'] as String?) ?? 1;
     }
     await db.insert('app_settings', {
       'key': key,
@@ -187,22 +187,22 @@ class OrderRepository {
     return Order(
       id: row['id'],
       storeId: row['store_id'],
-      customerId: row['customer_id']?,
-      orderCode: row['order_code'],
-      status: row['status'],
-      paymentStatus: row['payment_status'],
-      paymentMethod: row['payment_method']?,
+      customerId: row['customer_id'] as String?,
+      orderCode: row['order_code'] as String,
+      status: row['status'] as String,
+      paymentStatus: row['payment_status'] as String,
+      paymentMethod: row['payment_method'] as String?,
       subtotal: (row['subtotal'] as num).toInt(),
       discountAmount: (row['discount_amount'] as num).toInt(),
       totalAmount: (row['total_amount'] as num).toInt(),
       costAmount: (row['cost_amount'] as num).toInt(),
       grossProfit: (row['gross_profit'] as num).toInt(),
       paidAmount: (row['paid_amount'] as num).toInt(),
-      source: row['source'],
-      originalInput: row['original_input']?,
-      note: row['note']?,
-      completedAt: row['completed_at']?,
-      cancelledAt: row['cancelled_at']?,
+      source: row['source'] as String,
+      originalInput: row['original_input'] as String?,
+      note: row['note'] as String?,
+      completedAt: row['completed_at'] as int?,
+      cancelledAt: row['cancelled_at'] as int?,
       createdAt: (row['created_at'] as num).toInt(),
       updatedAt: (row['updated_at'] as num).toInt(),
     );

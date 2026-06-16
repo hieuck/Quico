@@ -111,7 +111,7 @@ class ProductRepository {
     if (input.stockQuantity != null) values['stock_quantity'] = input.stockQuantity;
     if (input.lowStockThreshold != null) values['low_stock_threshold'] = input.lowStockThreshold;
     if (input.imagePath != null) values['image_path'] = input.imagePath;
-    if (input.isActive != null) values['is_active'] = input.isActive ? 1 : 0;
+    if (input.isActive != null) values['is_active'] = input.isActive == true ? 1 : 0;
 
     await db.update('products', values, where: 'id = ?', whereArgs: [input.id]);
     return (await getProductById(input.id))!;
