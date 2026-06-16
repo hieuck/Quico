@@ -136,19 +136,20 @@ class QueryBuilder {
 
   QueryBuilder orderBy(dynamic callback) => this;
 
-  Future<List<Map<String, dynamic>>> get() async {
+  Future<List<dynamic>> get() async {
     final db = await _db.database;
     var query = 'SELECT * FROM ${_table.name}';
     if (_conditions.isNotEmpty) {
       query += ' WHERE ${_conditions.join(" AND ")}';
     }
     if (_orderBy != null) query += ' ORDER BY $_orderBy';
-    return await db.rawQuery(query, _args);
+    final rows = await db.rawQuery(query, _args);
+    return rows.map((r) => DbRow(r) as dynamic).toList();
   }
 
   Future<dynamic> getSingleOrNull() async {
     final results = await get();
-    return results.isNotEmpty ? DbRow(results.first) : null;
+    return results.isNotEmpty ? results.first : null;
   }
 }
 

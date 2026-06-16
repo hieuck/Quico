@@ -119,11 +119,12 @@ class AppSettingsCompanion {
 
 class StoresCompanion {
   static Map<String, dynamic> custom(Map<String, dynamic> values) => values;
-
-  Map<String, dynamic> Function(Map<String, dynamic>)? _custom;
-  StoresCompanion({Map<String, dynamic>? custom}) {
-    _custom = (v) => custom ?? v;
-  }
-
+  StoresCompanion();
   factory StoresCompanion.fromMap(Map<String, dynamic> map) => StoresCompanion();
+}
+
+class Value<T> {
+  final T value;
+  const Value(this.value);
+  const Value.absent() : value = (null as T);
 }
