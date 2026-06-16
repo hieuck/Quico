@@ -16,7 +16,7 @@ class DevicePermissionService implements PermissionService {
 
   @override
   Future<bool> requestSpeechRecognition() async {
-    final status = await Permission.speechRecognition.request();
+    final status = await Permission.speech.request();
     return status.isGranted;
   }
 

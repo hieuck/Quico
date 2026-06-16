@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'tables/stores_table.dart';
@@ -15,6 +16,10 @@ import 'tables/app_settings_table.dart';
 import 'tables/ai_parse_logs_table.dart';
 
 part 'app_database.g.dart';
+
+final appDatabaseProvider = Provider<AppDatabase>((ref) {
+  return AppDatabase();
+});
 
 @DriftDatabase(
   tables: [
@@ -43,12 +48,15 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       onUpgrade: (m, from, to) async {},
+      beforeOpen: (details) async {
+        await customStatement('PRAGMA journal_mode=WAL');
+        await customStatement('PRAGMA foreign_keys=ON');
+      },
     );
   }
 
   Future<void> initialize() async {
-    await customStatement('PRAGMA journal_mode=WAL');
-    await customStatement('PRAGMA foreign_keys=ON');
+    // Database is ready after construction
   }
 }
 

@@ -95,6 +95,7 @@ class RuleBasedOrderTextParser implements OrderTextParser {
     int quantity = 1;
     int? unitPrice;
     String? note;
+    String productName = '';
     String remaining = raw.trim();
     final warnings = <AiWarning>[];
 
