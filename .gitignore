@@ -1,0 +1,43 @@
+# Flutter
+build/
+.dart_tool/
+.packages
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# iOS signing secrets
+*.p12
+*.cer
+*.mobileprovision
+*.base64.txt
+AuthKey_*.p8
+
+# Env/secrets
+.env
+.env.*
+!.env.example
+
+# Release artifacts
+*.ipa
+release_artifacts/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Coverage
+coverage/
