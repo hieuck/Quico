@@ -161,7 +161,7 @@ class AiReviewScreen extends ConsumerWidget {
     try {
       final database = ref.read(appDatabaseProvider);
       final repo = OrderRepository(db);
-      final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+      final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
       if (settings == null) return;
 
       final items = draft.items.map((item) => CartItem(
@@ -183,12 +183,12 @@ class AiReviewScreen extends ConsumerWidget {
       ));
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Don hang da tao!')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Don hang da tao!'});
         context.go('/orders');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.orderFailed)));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.orderFailed});
       }
     }
   }

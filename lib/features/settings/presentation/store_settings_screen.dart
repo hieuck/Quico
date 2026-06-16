@@ -22,9 +22,9 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
 
   Future<void> _load() async {
     final database = ref.read(appDatabaseProvider);
-    final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+    final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
     if (settings != null) {
-      final store = await (database.select(database.stores)..where((t) => t.id.equals(settings.value))).getSingleOrNull();
+      final store = await ((await database.database).query('stores')..where((t) => t.id.equals(settings.value)));
       if (store != null) _nameCtrl.text = store.name;
     }
     setState(() => _loading = false);
@@ -50,7 +50,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                 SizedBox(width: double.infinity, child: ElevatedButton(
                   onPressed: () async {
                     final database = ref.read(appDatabaseProvider);
-                    final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+                    final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
                     if (settings != null) {
                       await (database.update(database.stores)..where((t) => t.id.equals(settings.value))).write(
                         StoresCompanion(
@@ -58,7 +58,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                           updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
                         ),
                       );
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved')));
+                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved'});
                     }
                   },
                   child: Text(context.l10n.save),

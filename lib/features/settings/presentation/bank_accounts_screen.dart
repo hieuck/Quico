@@ -31,11 +31,11 @@ class _BankAccountsScreenState extends ConsumerState<BankAccountsScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     final database = ref.read(appDatabaseProvider);
-    final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+    final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
     if (settings == null) return;
 
     final now = DateTimeUtils.nowMillis();
-    database.into(database.bankAccounts).insert(BankAccountsCompanion.insert(
+    (await database.database).insert('bank_accounts', {
       id: IdGenerator.newId(),
       storeId: settings.value,
       bankCode: _bankCodeCtrl.text.trim(),
@@ -47,7 +47,7 @@ class _BankAccountsScreenState extends ConsumerState<BankAccountsScreen> {
     ));
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account added')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account added'});
       Navigator.pop(context);
     }
   }

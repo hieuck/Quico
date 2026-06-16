@@ -28,7 +28,7 @@ class AppLocalizations {
   }
 
   String _t(String key, [Map<String, String>? params]) {
-    String? value = _strings[key] as String?;
+    String? value = _strings[key]?;
     if (value == null) return key;
     if (params != null) {
       for (final entry in params.entries) {

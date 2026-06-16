@@ -34,16 +34,16 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     if (amount == null || amount <= 0) return;
 
     final database = ref.read(appDatabaseProvider);
-    final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+    final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
     if (settings == null) return;
 
     final now = DateTimeUtils.nowMillis();
-    database.into(database.expenses).insert(ExpensesCompanion.insert(
+    (await database.database).insert('expenses', {
       id: IdGenerator.newId(),
       storeId: settings.value,
       category: _category,
       amount: amount,
-      note: _noteCtrl.text.trim().isNotEmpty ? Value(_noteCtrl.text.trim()) : Value.absent(),
+      note: _noteCtrl.text.trim().isNotEmpty ? Value(_noteCtrl.text.trim()) : null,
       spentAt: now,
       createdAt: now,
       updatedAt: now,

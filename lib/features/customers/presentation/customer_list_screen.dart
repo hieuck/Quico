@@ -9,12 +9,12 @@ import '../../../l10n/l10n_extension.dart';
 
 final _customerListProvider = FutureProvider.autoDispose<List<Customer>>((ref) async {
   final database = ref.read(appDatabaseProvider);
-  final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+  final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
   if (settings == null) return [];
-  final rows = await (database.select(database.customers)
+  final rows = await ((await database.database).query('customers')
     ..where((t) => t.storeId.equals(settings.value))
-    ..where((t) => t.deletedAt.isNull())
-  ).get();
+    
+  );
   return rows.map((r) => Customer(
     id: r.id,
     storeId: r.storeId,

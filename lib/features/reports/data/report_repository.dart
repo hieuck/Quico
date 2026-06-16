@@ -56,7 +56,7 @@ class ReportRepository {
     ''', [storeId, range.start, range.end]);
 
     return rows.map((r) => ProductSalesSummary(
-      productName: r['product_name'] as String,
+      productName: r['product_name'],
       quantity: (r['total_qty'] as num).toInt(),
       revenue: (r['total_revenue'] as num).toInt(),
     )).toList();

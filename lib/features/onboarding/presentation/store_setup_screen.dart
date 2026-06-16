@@ -73,16 +73,16 @@ class _StoreSetupScreenState extends State<StoreSetupScreen> {
     final now = DateTimeUtils.nowMillis();
     final storeId = IdGenerator.newId();
 
-    database.into(database.stores).insert(StoresCompanion.insert(
+    (await database.database).insert('stores', {
       id: storeId,
       name: name,
-      businessType: _businessType.isNotEmpty ? Value(_businessType) : Value.absent(),
+      businessType: _businessType.isNotEmpty ? _businessType : null,
       currency: 'VND',
       createdAt: now,
       updatedAt: now,
     ));
 
-    database.into(database.appSettings).insert(AppSettingsCompanion.insert(
+    (await database.database).insert('app_settings', {
       key: 'active_store_id',
       value: storeId,
       updatedAt: now,

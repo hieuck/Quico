@@ -17,7 +17,7 @@ class OrderRepository {
     final rows = await db.query('app_settings', where: 'key = ?', whereArgs: [key]);
     int nextSeq = 1;
     if (rows.isNotEmpty) {
-      nextSeq = int.tryParse(rows.first['value'] as String) ?? 1;
+      nextSeq = int.tryParse(rows.first['value']) ?? 1;
     }
     await db.insert('app_settings', {
       'key': key,
@@ -104,7 +104,7 @@ class OrderRepository {
         where: 'customer_id = ? AND status = ?',
         whereArgs: [input.customerId, 'paid'],
       );
-      final totalSpent = paidRows.fold<int>(0, (s, r) => s + (r['total_amount'] as int));
+      final totalSpent = paidRows.fold<int>(0, (s, r) => s + (r['total_amount']));
       await db.update('customers',
         {'total_orders': paidRows.length, 'total_spent': totalSpent, 'updated_at': now},
         where: 'id = ?', whereArgs: [input.customerId],
@@ -177,7 +177,7 @@ class OrderRepository {
       if (item['product_id'] != null) {
         await db.rawUpdate(
           'UPDATE products SET stock_quantity = stock_quantity + ?, updated_at = ? WHERE id = ?',
-          [item['quantity'] as int, now, item['product_id']],
+          [item['quantity'], now, item['product_id']],
         );
       }
     }
@@ -185,24 +185,24 @@ class OrderRepository {
 
   Order _orderFromRow(Map<String, dynamic> row) {
     return Order(
-      id: row['id'] as String,
-      storeId: row['store_id'] as String,
-      customerId: row['customer_id'] as String?,
-      orderCode: row['order_code'] as String,
-      status: row['status'] as String,
-      paymentStatus: row['payment_status'] as String,
-      paymentMethod: row['payment_method'] as String?,
+      id: row['id'],
+      storeId: row['store_id'],
+      customerId: row['customer_id']?,
+      orderCode: row['order_code'],
+      status: row['status'],
+      paymentStatus: row['payment_status'],
+      paymentMethod: row['payment_method']?,
       subtotal: (row['subtotal'] as num).toInt(),
       discountAmount: (row['discount_amount'] as num).toInt(),
       totalAmount: (row['total_amount'] as num).toInt(),
       costAmount: (row['cost_amount'] as num).toInt(),
       grossProfit: (row['gross_profit'] as num).toInt(),
       paidAmount: (row['paid_amount'] as num).toInt(),
-      source: row['source'] as String,
-      originalInput: row['original_input'] as String?,
-      note: row['note'] as String?,
-      completedAt: row['completed_at'] as int?,
-      cancelledAt: row['cancelled_at'] as int?,
+      source: row['source'],
+      originalInput: row['original_input']?,
+      note: row['note']?,
+      completedAt: row['completed_at']?,
+      cancelledAt: row['cancelled_at']?,
       createdAt: (row['created_at'] as num).toInt(),
       updatedAt: (row['updated_at'] as num).toInt(),
     );

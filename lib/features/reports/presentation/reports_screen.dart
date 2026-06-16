@@ -10,7 +10,7 @@ import '../../../l10n/l10n_extension.dart';
 
 final _reportProvider = FutureProvider.autoDispose((ref) async {
   final database = ref.read(appDatabaseProvider);
-  final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+  final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
   if (settings == null) return null;
   final repo = ReportRepository(db);
   final today = await repo.getDashboardSummary(settings.value);

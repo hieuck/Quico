@@ -84,7 +84,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     try {
       final database = ref.read(appDatabaseProvider);
       final repo = ProductRepository(db);
-      final storeId = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+      final storeId = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
       if (storeId == null) return;
 
       if (_editing) {
@@ -112,7 +112,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       }
       if (mounted) context.pop();
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.saveFailed)));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.saveFailed});
     } finally {
       if (mounted) setState(() => _loading = false);
     }

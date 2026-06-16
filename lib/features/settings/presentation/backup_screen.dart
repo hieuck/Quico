@@ -21,14 +21,14 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     setState(() => _loading = true);
     try {
       final database = ref.read(appDatabaseProvider);
-      final stores = await database.select(database.stores).get();
-      final products = await database.select(database.products).get();
-      final customers = await database.select(database.customers).get();
-      final orders = await database.select(database.orders).get();
-      final items = await database.select(database.orderItems).get();
-      final movements = await database.select(database.inventoryMovements).get();
-      final expenses = await database.select(database.expenses).get();
-      final accounts = await database.select(database.bankAccounts).get();
+      final stores = await (await database.database).query('stores');
+      final products = await (await database.database).query('products');
+      final customers = await (await database.database).query('customers');
+      final orders = await (await database.database).query('orders');
+      final items = await (await database.database).query('order_items');
+      final movements = await (await database.database).query('inventory_movements');
+      final expenses = await (await database.database).query('expenses');
+      final accounts = await (await database.database).query('bank_accounts');
 
       final backup = {
         'app': context.l10n.appName,
@@ -53,7 +53,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         );
       }
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot export backup')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot export backup'});
     }
     setState(() => _loading = false);
   }

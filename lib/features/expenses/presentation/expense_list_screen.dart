@@ -8,13 +8,13 @@ import '../../../l10n/l10n_extension.dart';
 
 final _expenseListProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
   final database = ref.read(appDatabaseProvider);
-  final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+  final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
   if (settings == null) return [];
-  return await (database.select(database.expenses)
+  return await ((await database.database).query('expenses')
     ..where((t) => t.storeId.equals(settings.value))
-    ..where((t) => t.deletedAt.isNull())
-    ..orderBy([(t) => OrderingTerm(expression: t.spentAt, mode: OrderingMode.desc)])
-  ).get();
+    
+    
+  );
 });
 
 class ExpenseListScreen extends ConsumerWidget {

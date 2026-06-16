@@ -10,13 +10,13 @@ class ProductMatchingService {
     final normalized = TextNormalizer.expandAbbreviations(rawName);
 
     for (final product in catalog) {
-      final productName = product['normalized_name'] as String;
+      final productName = product['normalized_name'];
 
       if (normalized == productName) {
         return ProductMatchResult(
           match: ProductMatch(
-            productId: product['id'] as String,
-            productName: product['name'] as String,
+            productId: product['id'],
+            productName: product['name'],
             confidence: ProductMatchConfidence.exact,
             score: 1.0,
           ),
@@ -27,8 +27,8 @@ class ProductMatchingService {
       if (score >= 0.90) {
         return ProductMatchResult(
           match: ProductMatch(
-            productId: product['id'] as String,
-            productName: product['name'] as String,
+            productId: product['id'],
+            productName: product['name'],
             confidence: score >= 1.0 ? ProductMatchConfidence.exact : ProductMatchConfidence.high,
             score: score,
           ),
@@ -37,8 +37,8 @@ class ProductMatchingService {
       if (score >= 0.75) {
         return ProductMatchResult(
           match: ProductMatch(
-            productId: product['id'] as String,
-            productName: product['name'] as String,
+            productId: product['id'],
+            productName: product['name'],
             confidence: ProductMatchConfidence.medium,
             score: score,
           ),
@@ -47,8 +47,8 @@ class ProductMatchingService {
       if (score >= 0.55) {
         return ProductMatchResult(
           match: ProductMatch(
-            productId: product['id'] as String,
-            productName: product['name'] as String,
+            productId: product['id'],
+            productName: product['name'],
             confidence: ProductMatchConfidence.low,
             score: score,
           ),

@@ -19,7 +19,7 @@ final _productListProvider = FutureProvider.autoDispose<List<Product>>((ref) asy
 });
 
 Future<String?> _getStoreId(AppDatabase db) async {
-  final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+  final settings = await ((await database.database).query('app_settings')..where((t) => t.key.equals('active_store_id')));
   return settings?.value;
 }
 

@@ -130,21 +130,21 @@ class ProductRepository {
 
   Product _toDomain(Map<String, dynamic> row) {
     return Product(
-      id: row['id'] as String,
-      storeId: row['store_id'] as String,
-      name: row['name'] as String,
-      normalizedName: row['normalized_name'] as String,
-      sku: row['sku'] as String?,
-      barcode: row['barcode'] as String?,
+      id: row['id'],
+      storeId: row['store_id'],
+      name: row['name'],
+      normalizedName: row['normalized_name'],
+      sku: row['sku']?,
+      barcode: row['barcode']?,
       costPrice: (row['cost_price'] as num).toInt(),
       salePrice: (row['sale_price'] as num).toInt(),
       stockQuantity: (row['stock_quantity'] as num).toInt(),
       lowStockThreshold: (row['low_stock_threshold'] as num).toInt(),
-      imagePath: row['image_path'] as String?,
+      imagePath: row['image_path']?,
       isActive: row['is_active'] == 1,
       createdAt: (row['created_at'] as num).toInt(),
       updatedAt: (row['updated_at'] as num).toInt(),
-      deletedAt: row['deleted_at'] as int?,
+      deletedAt: row['deleted_at']?,
     );
   }
 }
