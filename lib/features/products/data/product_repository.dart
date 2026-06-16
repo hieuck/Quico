@@ -97,7 +97,7 @@ class ProductRepository {
 
   Future<Product> updateProduct(UpdateProductInput input) async {
     final now = DateTimeUtils.nowMillis();
-    final updates: Map<String, dynamic> = {};
+    final updates = <String, dynamic>{};
 
     if (input.name != null) {
       updates['name'] = input.name;
