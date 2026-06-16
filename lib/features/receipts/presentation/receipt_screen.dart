@@ -111,10 +111,10 @@ class ReceiptScreen extends ConsumerWidget {
   }
 
   String _paymentStatusText(String s) {
-    switch (s) { case 'paid': return context.l10n.paid; case 'unpaid': return context.l10n.unpaid; case 'partial': return context.l10n.partial; default: return s; }
+    switch (s) { case 'paid': return 'Paid'; case 'unpaid': return 'Unpaid'; case 'partial': return 'Partial'; default: return s; }
   }
 
   String _paymentMethodText(String m) {
-    switch (m) { case 'cash': return context.l10n.cash; case 'bank_transfer': return context.l10n.bankTransfer; default: return 'Khac'; }
+    switch (m) { case 'cash': return 'Cash'; case 'bank_transfer': return 'Bank Transfer'; default: return 'Other'; }
   }
 }
