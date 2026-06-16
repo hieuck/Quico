@@ -110,18 +110,6 @@ class TableInfo {
   const TableInfo(this.name);
 }
 
-// Dynamic column access for Drift-compatible where clauses
-class ColumnRef {
-  final String _name;
-  final List<String> _conditions = [];
-  final List<dynamic> _args = [];
-  ColumnRef(this._name);
-  ColumnRef equals(dynamic value) { _conditions.add('$_name = ?'); _args.add(value); return this; }
-  ColumnRef isNull() { _conditions.add('$_name IS NULL'); return this; }
-  void isNotIn(List<dynamic> values) {}
-  void isBetweenValues(dynamic a, dynamic b) {}
-}
-
 // Query builder that mimics Drift's select API
 class QueryBuilder {
   final TableInfo _table;
@@ -222,12 +210,16 @@ class UpdateBuilder {
 
   UpdateBuilder._(this._table, this._db);
 
-  UpdateBuilder where(void Function(WhereBuilder) callback) {
+  UpdateBuilder where(void Function(dynamic t) callback) {
     final wb = WhereBuilder._();
     callback(wb);
-    if (wb._cond != null) {
-      _conditions.add(wb._cond!);
-      _args.addAll(wb._args);
+    for (final clause in wb._clauses) {
+      _conditions.add(clause.key);
+      if (clause.value is List) {
+        _args.addAll(clause.value as List);
+      } else if (clause.value != null) {
+        _args.add(clause.value);
+      }
     }
     return this;
   }
@@ -243,13 +235,13 @@ class UpdateBuilder {
 }
 
 // Table instance definitions used by screens
-final appSettingsTable = TableInfo('app_settings', (c) => c);
-final storesTable = TableInfo('stores', (c) => c);
-final productsTable = TableInfo('products', (c) => c);
-final customersTable = TableInfo('customers', (c) => c);
-final ordersTable = TableInfo('orders', (c) => c);
-final orderItemsTable = TableInfo('order_items', (c) => c);
-final inventoryMovementsTable = TableInfo('inventory_movements', (c) => c);
-final expensesTable = TableInfo('expenses', (c) => c);
-final bankAccountsTable = TableInfo('bank_accounts', (c) => c);
-final aiParseLogsTable = TableInfo('ai_parse_logs', (c) => c);
+final appSettingsTable = TableInfo('app_settings');
+final storesTable = TableInfo('stores');
+final productsTable = TableInfo('products');
+final customersTable = TableInfo('customers');
+final ordersTable = TableInfo('orders');
+final orderItemsTable = TableInfo('order_items');
+final inventoryMovementsTable = TableInfo('inventory_movements');
+final expensesTable = TableInfo('expenses');
+final bankAccountsTable = TableInfo('bank_accounts');
+final aiParseLogsTable = TableInfo('ai_parse_logs');
