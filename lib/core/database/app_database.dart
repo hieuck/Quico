@@ -146,10 +146,33 @@ class QueryBuilder {
     return await db.rawQuery(query, _args);
   }
 
-  Future<Map<String, dynamic>?> getSingleOrNull() async {
+  Future<Row?> getSingleOrNull() async {
     final results = await get();
-    return results.isNotEmpty ? results.first : null;
+    return results.isNotEmpty ? Row(results.first) : null;
   }
+
+  Future<List<Row>> get() async {
+    final db = await _db.database;
+    var query = 'SELECT * FROM ${_table.name}';
+    if (_conditions.isNotEmpty) {
+      query += ' WHERE ${_conditions.join(" AND ")}';
+    }
+    if (_orderBy != null) query += ' ORDER BY $_orderBy';
+    final rows = await db.rawQuery(query, _args);
+    return rows.map((r) => Row(r)).toList();
+  }
+}
+
+class Row {
+  final Map<String, dynamic> _data;
+  Row(this._data);
+  dynamic get(String key) => _data[key];
+  dynamic noSuchMethod(Invocation inv) {
+    final name = inv.memberName.toString().replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '');
+    if (_data.containsKey(name)) return _data[name];
+    return super.noSuchMethod(inv);
+  }
+}
 }
 
 class WhereBuilder {
