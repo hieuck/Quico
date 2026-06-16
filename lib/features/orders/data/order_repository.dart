@@ -17,7 +17,8 @@ class OrderRepository {
     final rows = await db.query('app_settings', where: 'key = ?', whereArgs: [key]);
     int nextSeq = 1;
     if (rows.isNotEmpty) {
-      nextSeq = int.tryParse(rows.first['value'] as String?) ?? 1;
+      final val = rows.first['value'];
+      nextSeq = (val is String ? int.tryParse(val) : null) ?? 1;
     }
     await db.insert('app_settings', {
       'key': key,
