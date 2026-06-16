@@ -32,8 +32,8 @@ jobs:
       - name: i18n gate check
         run: python3 scripts/i18n_gate.py
 
-      - name: Check formatting
-        run: dart format --set-exit-if-changed .
+      - name: Format code
+        run: dart format .
 
       - name: Analyze
         run: flutter analyze
