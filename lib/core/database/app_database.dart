@@ -4,48 +4,60 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'tables/stores_table.dart';
-import 'tables/products_table.dart';
-import 'tables/customers_table.dart';
-import 'tables/orders_table.dart';
-import 'tables/order_items_table.dart';
-import 'tables/inventory_movements_table.dart';
-import 'tables/expenses_table.dart';
-import 'tables/bank_accounts_table.dart';
-import 'tables/app_settings_table.dart';
-import 'tables/ai_parse_logs_table.dart';
 
-part 'app_database.g.dart';
+export 'tables/stores_table.dart';
+export 'tables/products_table.dart';
+export 'tables/customers_table.dart';
+export 'tables/orders_table.dart';
+export 'tables/order_items_table.dart';
+export 'tables/inventory_movements_table.dart';
+export 'tables/expenses_table.dart';
+export 'tables/bank_accounts_table.dart';
+export 'tables/app_settings_table.dart';
+export 'tables/ai_parse_logs_table.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   return AppDatabase();
 });
 
-@DriftDatabase(
-  tables: [
-    Stores,
-    Products,
-    Customers,
-    Orders,
-    OrderItems,
-    InventoryMovements,
-    Expenses,
-    BankAccounts,
-    AppSettings,
-    AiParseLogs,
-  ],
-)
-class AppDatabase extends _$AppDatabase {
+class AppDatabase extends GeneratedDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
   int get schemaVersion => 1;
 
   @override
+  List<TableInfo<Table, dynamic>> get allTables => [
+    storesTable,
+    productsTable,
+    customersTable,
+    ordersTable,
+    orderItemsTable,
+    inventoryMovementsTable,
+    expensesTable,
+    bankAccountsTable,
+    appSettingsTable,
+    aiParseLogsTable,
+  ];
+
+  final storesTable = Stores();
+  final productsTable = Products();
+  final customersTable = Customers();
+  final ordersTable = Orders();
+  final orderItemsTable = OrderItems();
+  final inventoryMovementsTable = InventoryMovements();
+  final expensesTable = Expenses();
+  final bankAccountsTable = BankAccounts();
+  final appSettingsTable = AppSettings();
+  final aiParseLogsTable = AiParseLogs();
+
+  @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) async {
-        await m.createAll();
+        for (final table in allTables) {
+          await m.createTable(table);
+        }
       },
       onUpgrade: (m, from, to) async {},
       beforeOpen: (details) async {
@@ -55,9 +67,7 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  Future<void> initialize() async {
-    // Database is ready after construction
-  }
+  Future<void> initialize() async {}
 }
 
 LazyDatabase _openConnection() {
