@@ -15,11 +15,11 @@ class InventoryService {
     required int quantitySold,
   }) async {
     final now = DateTimeUtils.nowMillis();
-    final product = await (_db.select(_db.products)..where((t) => t.id.equals(productId))).getSingleOrNull();
+    final product = await (_database.select(_database.products)..where((t) => t.id.equals(productId))).getSingleOrNull();
     if (product == null) return;
 
     final newStock = product.stockQuantity - quantitySold;
-    _db.into(_db.inventoryMovements).insert(InventoryMovementsCompanion.insert(
+    _database.into(_database.inventoryMovements).insert(InventoryMovementsCompanion.insert(
       id: IdGenerator.newId(),
       storeId: storeId,
       productId: productId,
@@ -31,7 +31,7 @@ class InventoryService {
       createdAt: now,
     ));
 
-    await (_db.update(_db.products)..where((t) => t.id.equals(productId))).write(
+    await (_database.update(_database.products)..where((t) => t.id.equals(productId))).write(
       ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
     );
   }
@@ -43,11 +43,11 @@ class InventoryService {
     required int quantityRestored,
   }) async {
     final now = DateTimeUtils.nowMillis();
-    final product = await (_db.select(_db.products)..where((t) => t.id.equals(productId))).getSingleOrNull();
+    final product = await (_database.select(_database.products)..where((t) => t.id.equals(productId))).getSingleOrNull();
     if (product == null) return;
 
     final newStock = product.stockQuantity + quantityRestored;
-    _db.into(_db.inventoryMovements).insert(InventoryMovementsCompanion.insert(
+    _database.into(_database.inventoryMovements).insert(InventoryMovementsCompanion.insert(
       id: IdGenerator.newId(),
       storeId: storeId,
       productId: productId,
@@ -59,7 +59,7 @@ class InventoryService {
       createdAt: now,
     ));
 
-    await (_db.update(_db.products)..where((t) => t.id.equals(productId))).write(
+    await (_database.update(_database.products)..where((t) => t.id.equals(productId))).write(
       ProductsCompanion.custom({'stock_quantity': newStock, 'updated_at': now}),
     );
   }
@@ -71,11 +71,11 @@ class InventoryService {
     required String note,
   }) async {
     final now = DateTimeUtils.nowMillis();
-    final product = await (_db.select(_db.products)..where((t) => t.id.equals(productId))).getSingleOrNull();
+    final product = await (_database.select(_database.products)..where((t) => t.id.equals(productId))).getSingleOrNull();
     if (product == null) return;
 
     final delta = newQuantity - product.stockQuantity;
-    _db.into(_db.inventoryMovements).insert(InventoryMovementsCompanion.insert(
+    _database.into(_database.inventoryMovements).insert(InventoryMovementsCompanion.insert(
       id: IdGenerator.newId(),
       storeId: storeId,
       productId: productId,
@@ -86,13 +86,13 @@ class InventoryService {
       createdAt: now,
     ));
 
-    await (_db.update(_db.products)..where((t) => t.id.equals(productId))).write(
+    await (_database.update(_database.products)..where((t) => t.id.equals(productId))).write(
       ProductsCompanion.custom({'stock_quantity': newQuantity, 'updated_at': now}),
     );
   }
 
   Future<List<InventoryMovementRow>> listMovements(String productId) async {
-    return await (_db.select(_db.inventoryMovements)
+    return await (_database.select(_database.inventoryMovements)
       ..where((t) => t.productId.equals(productId))
       ..orderBy([(t) => db.OrderingTerm(expression: t.createdAt, mode: db.OrderingMode.desc)])
     ).get();

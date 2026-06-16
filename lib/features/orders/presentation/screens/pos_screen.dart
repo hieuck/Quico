@@ -14,7 +14,7 @@ import '../../../../l10n/l10n_extension.dart';
 final _activeProductsProvider = FutureProvider.autoDispose<List<Product>>((ref) async {
   final database = ref.read(db.appDatabaseProvider);
   final repo = ProductRepository(db);
-  final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+  final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   if (settings == null) return [];
   return repo.listActiveProducts(settings.value);
 });
@@ -59,7 +59,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     try {
       final database = ref.read(db.appDatabaseProvider);
       final repo = OrderRepository(db);
-      final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+      final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
       if (settings == null) return;
 
       final order = await repo.completeOrder(CompleteOrderInput(

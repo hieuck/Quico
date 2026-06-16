@@ -84,7 +84,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     try {
       final database = ref.read(db.appDatabaseProvider);
       final repo = ProductRepository(db);
-      final storeId = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+      final storeId = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
       if (storeId == null) return;
 
       if (_editing) {

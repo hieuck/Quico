@@ -17,7 +17,7 @@ class ReportRepository {
   }
 
   Future<DashboardSummary> _getSummary(String storeId, DateRange range) async {
-    final orders = await (_db.select(_db.orders)
+    final orders = await (_database.select(_database.orders)
       ..where((t) => t.storeId.equals(storeId))
       ..where((t) => t.createdAt.isBetweenValues(range.start, range.end))
       ..where((t) => t.status.isNotIn(['draft', 'cancelled', 'refunded']))
@@ -25,7 +25,7 @@ class ReportRepository {
 
     final revenue = orders.fold<int>(0, (s, o) => s + o.totalAmount);
     final profit = orders.fold<int>(0, (s, o) => s + o.grossProfit);
-    final expenseRows = await (_db.select(_db.expenses)
+    final expenseRows = await (_database.select(_database.expenses)
       ..where((t) => t.storeId.equals(storeId))
       ..where((t) => t.spentAt.isBetweenValues(range.start, range.end))
       ..where((t) => t.deletedAt.isNull())
@@ -43,18 +43,18 @@ class ReportRepository {
   }
 
   Future<List<ProductSalesSummary>> getBestSellingProducts(String storeId, DateRange range) async {
-    final items = await (_db.select(_db.orderItems)
+    final items = await (_database.select(_database.orderItems)
       ..join([
-        innerJoin(_db.orders, _db.orderItems.orderId.equalsExpressions(_db.orders.id)),
+        innerJoin(_database.orders, _database.orderItems.orderId.equalsExpressions(_database.orders.id)),
       ])
-      ..where(_db.orders.storeId.equals(storeId))
-      ..where(_db.orders.createdAt.isBetweenValues(range.start, range.end))
-      ..where(_db.orders.status.isNotIn(['draft', 'cancelled', 'refunded']))
+      ..where(_database.orders.storeId.equals(storeId))
+      ..where(_database.orders.createdAt.isBetweenValues(range.start, range.end))
+      ..where(_database.orders.status.isNotIn(['draft', 'cancelled', 'refunded']))
     ).get();
 
     final productMap = <String, ProductSalesSummary>{};
     for (final row in items) {
-      final item = row.readTable(_db.orderItems);
+      final item = row.readTable(_database.orderItems);
       final key = item.productId ?? item.productName;
       productMap.update(key, (existing) {
         return ProductSalesSummary(

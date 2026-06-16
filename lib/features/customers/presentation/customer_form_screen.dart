@@ -30,11 +30,11 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     final database = ref.read(db.appDatabaseProvider);
-    final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+    final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings == null) return;
 
     final now = DateTimeUtils.nowMillis();
-    db.into(db.customers).insert(CustomersCompanion.insert(
+    database.into(database.customers).insert(CustomersCompanion.insert(
       id: IdGenerator.newId(),
       storeId: settings.value,
       name: _nameCtrl.text.trim(),

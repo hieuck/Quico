@@ -44,7 +44,7 @@ class _MenuImportScreenState extends ConsumerState<MenuImportScreen> {
 
   Future<void> _saveSelected() async {
     final database = ref.read(db.appDatabaseProvider);
-    final settings = await (db.select(db.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
+    final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings == null) return;
 
     final repo = ProductRepository(db);
@@ -53,7 +53,7 @@ class _MenuImportScreenState extends ConsumerState<MenuImportScreen> {
     for (final i in _selected) {
       final product = _detected[i];
       final normalizedName = product.name.toLowerCase().trim();
-      db.into(db.products).insert(ProductsCompanion.insert(
+      database.into(database.products).insert(ProductsCompanion.insert(
         id: IdGenerator.newId(),
         storeId: settings.value,
         name: product.name,
