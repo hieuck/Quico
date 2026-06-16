@@ -29,7 +29,19 @@ class AppDatabase {
 
   Future<void> initialize() async => database;
 
-  // Compatibility layer for old Drift-style calls
+  // Table getters for Drift-compatible syntax
+  TableInfo get appSettings => appSettingsTable;
+  TableInfo get stores => storesTable;
+  TableInfo get products => productsTable;
+  TableInfo get customers => customersTable;
+  TableInfo get orders => ordersTable;
+  TableInfo get orderItems => orderItemsTable;
+  TableInfo get inventoryMovements => inventoryMovementsTable;
+  TableInfo get expenses => expensesTable;
+  TableInfo get bankAccounts => bankAccountsTable;
+  TableInfo get aiParseLogs => aiParseLogsTable;
+
+  // Compatibility layer for Drift-style calls
   QueryBuilder select(TableInfo table) => QueryBuilder._(table, this);
   InsertBuilder into(TableInfo table) => InsertBuilder._(table, this);
   UpdateBuilder update(TableInfo table) => UpdateBuilder._(table, this);
@@ -95,8 +107,19 @@ class AppDatabase {
 // Table metadata
 class TableInfo {
   final String name;
-  final String Function(String) column;
-  const TableInfo(this.name, this.column);
+  const TableInfo(this.name);
+}
+
+// Dynamic column access for Drift-compatible where clauses
+class ColumnRef {
+  final String _name;
+  final List<String> _conditions = [];
+  final List<dynamic> _args = [];
+  ColumnRef(this._name);
+  ColumnRef equals(dynamic value) { _conditions.add('$_name = ?'); _args.add(value); return this; }
+  ColumnRef isNull() { _conditions.add('$_name IS NULL'); return this; }
+  void isNotIn(List<dynamic> values) {}
+  void isBetweenValues(dynamic a, dynamic b) {}
 }
 
 // Query builder that mimics Drift's select API
@@ -109,20 +132,21 @@ class QueryBuilder {
 
   QueryBuilder._(this._table, this._db);
 
-  QueryBuilder where(void Function(WhereBuilder) callback) {
+  QueryBuilder where(void Function(dynamic t) callback) {
     final wb = WhereBuilder._();
     callback(wb);
-    if (wb._cond != null) {
-      _conditions.add(wb._cond!);
-      _args.addAll(wb._args);
+    for (final clause in wb._clauses) {
+      _conditions.add(clause.key);
+      if (clause.value is List) {
+        _args.addAll(clause.value as List);
+      } else if (clause.value != null) {
+        _args.add(clause.value);
+      }
     }
     return this;
   }
 
-  QueryBuilder orderBy(void Function(OrderBuilder) callback) {
-    // Simplified - ignore for now
-    return this;
-  }
+  QueryBuilder orderBy(dynamic callback) => this;
 
   Future<List<Map<String, dynamic>>> get() async {
     final db = await _db.database;
@@ -141,15 +165,41 @@ class QueryBuilder {
 }
 
 class WhereBuilder {
-  String? _cond;
-  final List<dynamic> _args = [];
+  final List<MapEntry<String, dynamic>> _clauses = [];
   WhereBuilder._();
 
-  WhereBuilder get t => this;
+  dynamic noSuchMethod(Invocation invocation) {
+    if (invocation.memberName is Symbol) {
+      final name = _symbolName(invocation.memberName);
+      return ColumnRef(name, this);
+    }
+    return super.noSuchMethod(invocation);
+  }
 
+  static String _symbolName(Symbol s) {
+    final str = s.toString();
+    return str.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '');
+  }
+}
+
+class ColumnRef {
+  final String _name;
+  final WhereBuilder _wb;
+  ColumnRef(this._name, this._wb);
+  
   void equals(dynamic value) {
-    _cond = _cond?.contains('?') ?? true ? _cond : '$_cond = ?';
-    if (_args.isNotEmpty) _args.add(value);
+    _wb._clauses.add(MapEntry('$_name = ?', value));
+  }
+  void isNull() {
+    _wb._clauses.add(MapEntry('$_name IS NULL', null));
+  }
+  void isNotIn(List<dynamic> values) {
+    if (values.isEmpty) return;
+    final placeholders = values.map((_) => '?').join(',');
+    _wb._clauses.add(MapEntry('$_name NOT IN ($placeholders)', values));
+  }
+  void isBetweenValues(dynamic a, dynamic b) {
+    _wb._clauses.add(MapEntry('$_name >= ? AND $_name <= ?', [a, b]));
   }
 }
 
@@ -192,14 +242,14 @@ class UpdateBuilder {
   }
 }
 
-// Table instance definitions
-final appSettings = TableInfo('app_settings', (c) => c);
-final stores = TableInfo('stores', (c) => c);
-final products = TableInfo('products', (c) => c);
-final customers = TableInfo('customers', (c) => c);
-final orders = TableInfo('orders', (c) => c);
-final orderItems = TableInfo('order_items', (c) => c);
-final inventoryMovements = TableInfo('inventory_movements', (c) => c);
-final expenses = TableInfo('expenses', (c) => c);
-final bankAccounts = TableInfo('bank_accounts', (c) => c);
-final aiParseLogs = TableInfo('ai_parse_logs', (c) => c);
+// Table instance definitions used by screens
+final appSettingsTable = TableInfo('app_settings', (c) => c);
+final storesTable = TableInfo('stores', (c) => c);
+final productsTable = TableInfo('products', (c) => c);
+final customersTable = TableInfo('customers', (c) => c);
+final ordersTable = TableInfo('orders', (c) => c);
+final orderItemsTable = TableInfo('order_items', (c) => c);
+final inventoryMovementsTable = TableInfo('inventory_movements', (c) => c);
+final expensesTable = TableInfo('expenses', (c) => c);
+final bankAccountsTable = TableInfo('bank_accounts', (c) => c);
+final aiParseLogsTable = TableInfo('ai_parse_logs', (c) => c);

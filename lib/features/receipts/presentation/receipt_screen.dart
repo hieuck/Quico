@@ -9,10 +9,10 @@ import '../../../l10n/l10n_extension.dart';
 
 final _receiptDataProvider = FutureProvider.autoDispose.family<ReceiptData?, String>((ref, orderId) async {
   final database = ref.read(appDatabaseProvider);
-  final order = await (await database.database).query('orders', where: 'id = ?', whereArgs: [orderId]);
+  final order = await (database.select(database.orders)..where((t) => t.id.equals(orderId))).getSingleOrNull();
   if (order == null) return null;
-  final items = await (await database.database).query('order_items'));
-  final store = await (await database.database).query('stores');
+  final items = await (database.select(database.orderItems)..where((t) => t.orderId.equals(orderId))).get();
+  final store = await (database.select(database.stores)..where((t) => t.id.equals(order.storeId))).getSingleOrNull();
   return ReceiptData(
     storeName: store?.name ?? context.l10n.appName,
     orderCode: order.orderCode,

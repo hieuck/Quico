@@ -14,7 +14,7 @@ import '../../../../l10n/l10n_extension.dart';
 final _activeProductsProvider = FutureProvider.autoDispose<List<Product>>((ref) async {
   final database = ref.read(appDatabaseProvider);
   final repo = ProductRepository(db);
-  final settings = await (await database.database).query('app_settings');
+  final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   if (settings == null) return [];
   return repo.listActiveProducts(settings.value);
 });
@@ -43,13 +43,13 @@ class _PosScreenState extends ConsumerState<PosScreen> {
         quantity: 1,
         unitPrice: product.salePrice,
         costPrice: product.costPrice,
-      });
+      )));
     }
   }
 
   Future<void> _completeOrder() async {
     if (!_calc.canCompleteOrder(_cart)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Don hang chua co san pham'});
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Don hang chua co san pham')));
       return;
     }
 
@@ -59,7 +59,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     try {
       final database = ref.read(appDatabaseProvider);
       final repo = OrderRepository(db);
-      final settings = await (await database.database).query('app_settings');
+      final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
       if (settings == null) return;
 
       final order = await repo.completeOrder(CompleteOrderInput(
@@ -73,10 +73,10 @@ class _PosScreenState extends ConsumerState<PosScreen> {
 
       if (mounted) {
         setState(() => _cart.clear());
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Don ${order.orderCode} da tao'});
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Don ${order.orderCode} da tao')));
       }
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.orderFailed});
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.orderFailed)));
     }
   }
 

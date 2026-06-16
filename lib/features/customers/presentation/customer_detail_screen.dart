@@ -7,7 +7,7 @@ import '../../../l10n/l10n_extension.dart';
 
 final _customerDetailProvider = FutureProvider.autoDispose.family<Customer?, String>((ref, id) async {
   final database = ref.read(appDatabaseProvider);
-  final row = await (await database.database).query('customers', where: 'id = ?', whereArgs: [id]);
+  final row = await (database.select(database.customers)..where((t) => t.id.equals(id))).getSingleOrNull();
   if (row == null) return null;
   return Customer(
     id: row.id,

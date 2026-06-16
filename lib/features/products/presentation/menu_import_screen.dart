@@ -44,7 +44,7 @@ class _MenuImportScreenState extends ConsumerState<MenuImportScreen> {
 
   Future<void> _saveSelected() async {
     final database = ref.read(appDatabaseProvider);
-    final settings = await (await database.database).query('app_settings');
+    final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings == null) return;
 
     final repo = ProductRepository(db);
@@ -53,7 +53,7 @@ class _MenuImportScreenState extends ConsumerState<MenuImportScreen> {
     for (final i in _selected) {
       final product = _detected[i];
       final normalizedName = product.name.toLowerCase().trim();
-      (await database.database).insert('products', {
+      database.into(database.products).insert(ProductsCompanion.insert(
         id: IdGenerator.newId(),
         storeId: settings.value,
         name: product.name,
@@ -65,7 +65,7 @@ class _MenuImportScreenState extends ConsumerState<MenuImportScreen> {
     }
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added ${_selected.length} products'});
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added ${_selected.length} products')));
       context.pop();
     }
   }

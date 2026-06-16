@@ -8,9 +8,9 @@ import '../../../l10n/l10n_extension.dart';
 
 final _activeStoreProvider = FutureProvider((ref) async {
   final database = ref.read(appDatabaseProvider);
-  final settings = await (await database.database).query('app_settings');
+  final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
   if (settings == null) return null;
-  return await (await database.database).query('stores');
+  return await (database.select(database.stores)..where((t) => t.id.equals(settings.value))).getSingleOrNull();
 });
 
 class HomeScreen extends ConsumerWidget {

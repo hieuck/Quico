@@ -22,9 +22,9 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
 
   Future<void> _load() async {
     final database = ref.read(appDatabaseProvider);
-    final settings = await (await database.database).query('app_settings');
+    final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
     if (settings != null) {
-      final store = await (await database.database).query('stores');
+      final store = await (database.select(database.stores)..where((t) => t.id.equals(settings.value))).getSingleOrNull();
       if (store != null) _nameCtrl.text = store.name;
     }
     setState(() => _loading = false);
@@ -50,13 +50,15 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                 SizedBox(width: double.infinity, child: ElevatedButton(
                   onPressed: () async {
                     final database = ref.read(appDatabaseProvider);
-                    final settings = await (await database.database).query('app_settings');
+                    final settings = await (database.select(database.appSettings)..where((t) => t.key.equals('active_store_id'))).getSingleOrNull();
                     if (settings != null) {
-                      await (database.update(database.stores),
+                      await (database.update(database.stores)..where((t) => t.id.equals(settings.value))).write(
+                        StoresCompanion(
+                          name: Value(_nameCtrl.text.trim()),
                           updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
                         ),
                       );
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved'});
+                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved')));
                     }
                   },
                   child: Text(context.l10n.save),
