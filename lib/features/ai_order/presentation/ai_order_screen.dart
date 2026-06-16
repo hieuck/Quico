@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/database/app_database.dart' as db;
 import '../../../core/ai/parser/rule_based_order_text_parser.dart';
@@ -6,6 +7,8 @@ import '../../../core/ai/parser/product_matching_service.dart';
 import '../../../core/ai/parser/parsed_order_models.dart';
 import '../../products/data/product_repository.dart';
 import 'ai_review_screen.dart';
+
+final _parsedDraftProvider = StateProvider<ParsedOrderDraft?>((ref) => null);
 
 class AiOrderScreen extends ConsumerStatefulWidget {
   const AiOrderScreen({super.key});
