@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/database/app_database.dart';
+import '../../../core/database/app_database.dart' as db;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../../../l10n/l10n_extension.dart';

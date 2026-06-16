@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import '../../../core/database/app_database.dart';
+import '../../../core/database/app_database.dart' as db;
 import '../../../core/utils/id_generator.dart';
 import '../../../core/utils/text_normalizer.dart';
 import '../../../core/utils/date_time_utils.dart';

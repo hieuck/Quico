@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/database/app_database.dart';
+import '../../../core/database/app_database.dart' as db;
 import '../../../core/ai/parser/parsed_order_models.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../shared/widgets/confirm_dialog.dart';

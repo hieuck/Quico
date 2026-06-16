@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:io' show File;
 import 'package:image_picker/image_picker.dart';
 import '../../../core/utils/validators.dart';
-import '../../../core/database/app_database.dart';
+import '../../../core/database/app_database.dart' as db;
 import '../../../core/local_storage/image_storage_service.dart';
 import '../../../core/local_storage/local_file_storage.dart';
 import '../../../core/utils/id_generator.dart';
