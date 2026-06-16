@@ -13,7 +13,7 @@ final _expenseListProvider = FutureProvider.autoDispose<List<dynamic>>((ref) asy
   return await (database.select(database.expenses)
     ..where((t) => t.storeId.equals(settings.value))
     ..where((t) => t.deletedAt.isNull())
-    ..orderBy([(t) => OrderingTerm(expression: t.spentAt, mode: OrderingMode.desc)])
+    
   ).get();
 });
 

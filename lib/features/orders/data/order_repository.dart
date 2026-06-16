@@ -104,7 +104,7 @@ class OrderRepository {
         where: 'customer_id = ? AND status = ?',
         whereArgs: [input.customerId, 'paid'],
       );
-      final totalSpent = paidRows.fold<int>(0, (s, r) => s + (r['total_amount']));
+      final totalSpent = paidRows.fold<int>(0, (s, r) => s + (r['total_amount'] as int));
       await db.update('customers',
         {'total_orders': paidRows.length, 'total_spent': totalSpent, 'updated_at': now},
         where: 'id = ?', whereArgs: [input.customerId],

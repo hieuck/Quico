@@ -39,8 +39,8 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
       id: IdGenerator.newId(),
       storeId: settings.value,
       name: _nameCtrl.text.trim(),
-      phone: _phoneCtrl.text.trim().isNotEmpty ? Value(_phoneCtrl.text.trim()) : Value.absent(),
-      note: _noteCtrl.text.trim().isNotEmpty ? Value(_noteCtrl.text.trim()) : Value.absent(),
+      phone: _phoneCtrl.text.trim().isNotEmpty ? _phoneCtrl.text.trim() : null,
+      note: _noteCtrl.text.trim().isNotEmpty ? _noteCtrl.text.trim() : null,
       createdAt: now,
       updatedAt: now,
     ));

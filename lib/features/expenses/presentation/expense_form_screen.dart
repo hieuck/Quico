@@ -44,7 +44,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       storeId: settings.value,
       category: _category,
       amount: amount,
-      note: _noteCtrl.text.trim().isNotEmpty ? Value(_noteCtrl.text.trim()) : Value.absent(),
+      note: _noteCtrl.text.trim().isNotEmpty ? Value(_noteCtrl.text.trim()) : null,
       spentAt: now,
       createdAt: now,
       updatedAt: now,
