@@ -1,0 +1,325 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2026-06-16",
+
+  "appName": "Quico",
+  "@appName": {"description": "App display name"},
+
+  "tagline": "Easy selling like texting.",
+  "@tagline": {"description": "App tagline"},
+
+  "appDescription": "Manage orders, products, revenue and inventory on your phone.",
+  "@appDescription": {"description": "App short description"},
+
+  "start": "Start",
+  "@start": {"description": "Start button"},
+
+  "createStore": "Create Store",
+  "@createStore": {"description": "Create store button"},
+
+  "storeInfo": "Store Information",
+  "@storeInfo": {"description": "Store setup title"},
+
+  "storeName": "Store Name",
+  "@storeName": {"description": "Store name field label"},
+
+  "businessType": "Business Type",
+  "@businessType": {"description": "Business type field label"},
+
+  "businessTypeOptional": "Business Type (optional)",
+  "@businessTypeOptional": {"description": "Business type optional label"},
+
+  "currencyVND": "Currency: VND",
+  "@currencyVND": {"description": "Currency label"},
+
+  "storeReady": "Store is ready!",
+  "@storeReady": {"description": "Store created confirmation"},
+
+  "home": "Home",
+  "@home": {"description": "Home tab"},
+
+  "orders": "Orders",
+  "@orders": {"description": "Orders tab"},
+
+  "products": "Products",
+  "@products": {"description": "Products tab"},
+
+  "reports": "Reports",
+  "@reports": {"description": "Reports tab"},
+
+  "more": "More",
+  "@more": {"description": "More tab"},
+
+  "newOrder": "New Order",
+  "@newOrder": {"description": "New order sheet title"},
+
+  "manualOrder": "Manual Order",
+  "@manualOrder": {"description": "Manual order action"},
+
+  "voiceOrder": "Voice Order",
+  "@voiceOrder": {"description": "Voice order action"},
+
+  "textOrder": "Text Order",
+  "@textOrder": {"description": "Text order action"},
+
+  "screenshotOrder": "Screenshot Order",
+  "@screenshotOrder": {"description": "Screenshot order action"},
+
+  "selectProducts": "Select products manually",
+  "@selectProducts": {"description": "Manual order subtitle"},
+
+  "orderByVoice": "Create order by voice",
+  "@orderByVoice": {"description": "Voice order subtitle"},
+
+  "pasteOrder": "Paste order content",
+  "@pasteOrder": {"description": "Text order subtitle"},
+
+  "chatScreenshot": "Chat screenshot",
+  "@chatScreenshot": {"description": "Screenshot order subtitle"},
+
+  "readyToSell": "Ready to sell",
+  "@readyToSell": {"description": "Online status"},
+
+  "revenueToday": "Revenue Today",
+  "@revenueToday": {"description": "Dashboard revenue card"},
+
+  "ordersToday": "Orders Today",
+  "@ordersToday": {"description": "Dashboard orders card"},
+
+  "grossProfit": "Gross Profit",
+  "@grossProfit": {"description": "Dashboard profit card"},
+
+  "quickActions": "Quick Actions",
+  "@quickActions": {"description": "Quick actions section"},
+
+  "lowStock": "Low Stock",
+  "@lowStock": {"description": "Low stock alert"},
+
+  "recentOrders": "Recent Orders",
+  "@recentOrders": {"description": "Recent orders section"},
+
+  "noProductsYet": "No products yet.",
+  "@noProductsYet": {"description": "Empty products"},
+
+  "noOrdersYet": "No orders yet.",
+  "@noOrdersYet": {"description": "Empty orders"},
+
+  "noStore": "No store found",
+  "@noStore": {"description": "No store message"},
+
+  "addFirstProduct": "Add your first product to start selling.",
+  "@addFirstProduct": {"description": "Empty product action hint"},
+
+  "productName": "Product Name",
+  "@productName": {"description": "Product name field"},
+
+  "salePrice": "Sale Price",
+  "@salePrice": {"description": "Sale price field"},
+
+  "costPrice": "Cost Price",
+  "@costPrice": {"description": "Cost price field"},
+
+  "stockQuantity": "Stock Quantity",
+  "@stockQuantity": {"description": "Stock field"},
+
+  "lowStockThreshold": "Low Stock Threshold",
+  "@lowStockThreshold": {"description": "Low stock threshold field"},
+
+  "skuOptional": "SKU (optional)",
+  "@skuOptional": {"description": "SKU field"},
+
+  "addPhoto": "Add Photo",
+  "@addPhoto": {"description": "Add image button"},
+
+  "save": "Save",
+  "@save": {"description": "Save button"},
+
+  "cancel": "Cancel",
+  "@cancel": {"description": "Cancel button"},
+
+  "confirm": "Confirm",
+  "@confirm": {"description": "Confirm button"},
+
+  "delete": "Delete",
+  "@delete": {"description": "Delete button"},
+
+  "edit": "Edit",
+  "@edit": {"description": "Edit action"},
+
+  "deactivate": "Deactivate",
+  "@deactivate": {"description": "Deactivate product"},
+
+  "confirmDelete": "Are you sure?",
+  "@confirmDelete": {"description": "Delete confirmation title"},
+
+  "paid": "Paid",
+  "@paid": {"description": "Payment status paid"},
+
+  "unpaid": "Unpaid",
+  "@unpaid": {"description": "Payment status unpaid"},
+
+  "partial": "Partial",
+  "@partial": {"description": "Payment status partial"},
+
+  "cash": "Cash",
+  "@cash": {"description": "Payment method cash"},
+
+  "bankTransfer": "Bank Transfer",
+  "@bankTransfer": {"description": "Payment method bank transfer"},
+
+  "search": "Search",
+  "@search": {"description": "Search placeholder"},
+
+  "total": "Total",
+  "@total": {"description": "Total label"},
+
+  "subtotal": "Subtotal",
+  "@subtotal": {"description": "Subtotal label"},
+
+  "discount": "Discount",
+  "@discount": {"description": "Discount label"},
+
+  "completeOrder": "Complete Order",
+  "@completeOrder": {"description": "Complete order button"},
+
+  "saveDraft": "Save Draft",
+  "@saveDraft": {"description": "Save as draft"},
+
+  "orderCode": "Order Code",
+  "@orderCode": {"description": "Order code label"},
+
+  "customer": "Customer",
+  "@customer": {"description": "Customer label"},
+
+  "paymentStatus": "Payment Status",
+  "@paymentStatus": {"description": "Payment status field"},
+
+  "paymentMethod": "Payment Method",
+  "@paymentMethod": {"description": "Payment method field"},
+
+  "addProduct": "Add Product",
+  "@addProduct": {"description": "Add product button"},
+
+  "screenshots": "Screenshots",
+  "@screenshots": {"description": "Screenshot tab"},
+
+  "voice": "Voice",
+  "@voice": {"description": "Voice tab"},
+
+  "text": "Text",
+  "@text": {"description": "Text tab"},
+
+  "importMenu": "Import Menu",
+  "@importMenu": {"description": "Menu import screen"},
+
+  "exportBackup": "Export Backup",
+  "@exportBackup": {"description": "Export backup button"},
+
+  "importBackup": "Import Backup",
+  "@importBackup": {"description": "Import backup button"},
+
+  "settings": "Settings",
+  "@settings": {"description": "Settings title"},
+
+  "storeSettings": "Store Settings",
+  "@storeSettings": {"description": "Store settings"},
+
+  "bankAccounts": "Bank Accounts",
+  "@bankAccounts": {"description": "Bank accounts title"},
+
+  "inventory": "Inventory",
+  "@inventory": {"description": "Inventory title"},
+
+  "expenses": "Expenses",
+  "@expenses": {"description": "Expenses title"},
+
+  "receipt": "Receipt",
+  "@receipt": {"description": "Receipt screen title"},
+
+  "noData": "No data",
+  "@noData": {"description": "Generic empty"},
+
+  "error": "Error",
+  "@error": {"description": "Generic error"},
+
+  "loading": "Loading...",
+  "@loading": {"description": "Generic loading"},
+
+  "retry": "Retry",
+  "@retry": {"description": "Retry button"},
+
+  "confirmOrder": "Confirm Order?",
+  "@confirmOrder": {"description": "Order confirmation title"},
+
+  "confirmOrderBody": "Confirm this order?",
+  "@confirmOrderBody": {"description": "Order confirmation body"},
+
+  "cancelOrder": "Cancel Order",
+  "@cancelOrder": {"description": "Cancel order button"},
+
+  "cancelOrderConfirm": "Cancel Order?",
+  "@cancelOrderConfirm": {"description": "Cancel order confirmation title"},
+
+  "cancelOrderBody": "Inventory will be restored.",
+  "@cancelOrderBody": {"description": "Cancel order body"},
+
+  "orderCreated": "Order created!",
+  "@orderCreated": {"description": "Order created message"},
+
+  "orderFailed": "Cannot create order",
+  "@orderFailed": {"description": "Order failed message"},
+
+  "saveFailed": "Cannot save",
+  "@saveFailed": {"description": "Generic save error"},
+
+  "noProducts": "No products",
+  "@noProducts": {"description": "Empty product list"},
+
+  "noCustomers": "No customers",
+  "@noCustomers": {"description": "Empty customer list"},
+
+  "noExpenses": "No expenses",
+  "@noExpenses": {"description": "Empty expense list"},
+
+  "aiOrder": "AI Order",
+  "@aiOrder": {"description": "AI order tab title"},
+
+  "photoLibrary": "Photo Library",
+  "@photoLibrary": {"description": "Pick from library"},
+
+  "takePhoto": "Take Photo",
+  "@takePhoto": {"description": "Take photo button"},
+
+  "orderReview": "Order Review",
+  "@orderReview": {"description": "AI review title"},
+
+  "orderSource": "Source: {source}",
+  "@orderSource": {"description": "Order source label", "placeholders": {"source": {"type": "String"}}},
+
+  "originalText": "Original Text",
+  "@originalText": {"description": "Original input label"},
+
+  "matched": "Matched",
+  "@matched": {"description": "Product matched badge"},
+
+  "needsReview": "Needs Review",
+  "@needsReview": {"description": "Low confidence badge"},
+
+  "newProduct": "New Product",
+  "@newProduct": {"description": "Unknown product badge"},
+
+  "receiptFooter": "Thank you!",
+  "@receiptFooter": {"description": "Receipt footer text"},
+
+  "cancelled": "Cancelled",
+  "@cancelled": {"description": "Order status cancelled"},
+
+  "refunded": "Refunded",
+  "@refunded": {"description": "Order status refunded"},
+
+  "draft": "Draft",
+  "@draft": {"description": "Order status draft"},
+
+  "version": "Version",
+  "@version": {"description": "Version label"}
+}
